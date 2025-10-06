@@ -1,0 +1,460 @@
+import React, { useEffect, useState } from 'react';
+import { User, Edit, Trash2, Eye, Save, X, Calendar, Clock } from 'lucide-react';
+
+interface Employee {
+  id: number;
+  name: string;
+  department: string;
+}
+
+interface TrainingHistory {
+  training_title: string;
+  start_time: string;
+  attendance_date: string | null;
+  status: 'attended' | 'upcoming' | 'absent';
+}
+
+interface EmployeeListProps {
+  refreshTrigger: number;
+  highlightId: number | null;
+}
+
+export const EmployeeList: React.FC<EmployeeListProps> = ({ refreshTrigger, highlightId }) => {
+  const [employees, setEmployees] = useState<Employee[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editForm, setEditForm] = useState({ name: '', department: '' });
+  const [detailEmployee, setDetailEmployee] = useState<Employee | null>(null);
+  const [trainingHistory, setTrainingHistory] = useState<TrainingHistory[]>([]);
+  const [loadingHistory, setLoadingHistory] = useState(false);
+
+  const employeesPerPage = 5;
+
+  useEffect(() => {
+    fetchEmployees();
+  }, [refreshTrigger]);
+
+  const fetchEmployees = () => {
+    let mounted = true;
+    setLoading(true);
+
+    fetch("http://localhost:4000/api/employees", { cache: "no-store" })
+      .then(res => res.json())
+      .then(data => {
+        if (mounted) {
+          setEmployees([...data]);
+          setCurrentPage(1);
+        }
+      })
+      .catch(err => console.error(err))
+      .finally(() => mounted && setLoading(false));
+
+    return () => { mounted = false; };
+  };
+
+  const fetchTrainingHistory = async (employeeName: string) => {
+    setLoadingHistory(true);
+    try {
+      const res = await fetch(`http://localhost:4000/api/employees/${encodeURIComponent(employeeName)}/training-history`);
+      if (res.ok) {
+        const data = await res.json();
+        console.log('Training history data:', data);
+        setTrainingHistory(data);
+      } else {
+        console.error('Failed to fetch training history');
+        setTrainingHistory([]);
+      }
+    } catch (error) {
+      console.error('Error fetching training history:', error);
+      setTrainingHistory([]);
+    } finally {
+      setLoadingHistory(false);
+    }
+  };
+
+  const handleEdit = (employee: Employee) => {
+    setEditingId(employee.id);
+    setEditForm({ name: employee.name, department: employee.department });
+  };
+
+  const handleSave = async (id: number) => {
+    try {
+      const res = await fetch(`http://localhost:4000/api/employees/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: editForm.name,
+          division: editForm.department
+        }),
+      });
+
+      if (res.ok) {
+        setEmployees(employees.map(emp => 
+          emp.id === id ? { ...emp, name: editForm.name, department: editForm.department } : emp
+        ));
+        setEditingId(null);
+        if (detailEmployee?.id === id) {
+          setDetailEmployee({ ...detailEmployee, name: editForm.name, department: editForm.department });
+        }
+      }
+    } catch (error) {
+      console.error('Error updating employee:', error);
+      alert('Gagal mengupdate karyawan');
+    }
+  };
+
+  const handleDelete = async (id: number, name: string) => {
+    if (!confirm(`Apakah Anda yakin ingin menghapus karyawan ${name}?`)) {
+      return;
+    }
+
+    try {
+      const res = await fetch(`http://localhost:4000/api/employees/${id}`, {
+        method: 'DELETE',
+      });
+
+      if (res.ok) {
+        setEmployees(employees.filter(emp => emp.id !== id));
+        if (detailEmployee?.id === id) {
+          setDetailEmployee(null);
+        }
+      }
+    } catch (error) {
+      console.error('Error deleting employee:', error);
+      alert('Gagal menghapus karyawan');
+    }
+  };
+
+  const handleViewDetails = (employee: Employee) => {
+    setDetailEmployee(employee);
+    fetchTrainingHistory(employee.name);
+  };
+
+  const closeDetail = () => {
+    setDetailEmployee(null);
+    setTrainingHistory([]);
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setEditForm({ name: '', department: '' });
+  };
+
+  const getTrainingStatus = (training: TrainingHistory) => {
+    const trainingDate = new Date(training.start_time);
+    const today = new Date();
+    
+    // Reset waktu untuk perbandingan tanggal saja
+    const todayDateOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const trainingDateOnly = new Date(trainingDate.getFullYear(), trainingDate.getMonth(), trainingDate.getDate());
+
+    console.log('Debug training:', {
+      training: training.training_title,
+      status: training.status,
+      start_time: trainingDate.toLocaleString('id-ID'),
+      today: today.toLocaleString('id-ID')
+    });
+
+    // Gunakan status dari backend
+    switch (training.status) {
+      case 'attended':
+        return { 
+          status: 'Hadir', 
+          color: 'text-green-600 bg-green-50',
+          date: trainingDate,
+          type: 'attended'
+        };
+      
+      case 'upcoming':
+        const daysUntil = Math.ceil((trainingDateOnly.getTime() - todayDateOnly.getTime()) / (1000 * 60 * 60 * 24));
+        return { 
+          status: `Upcoming - ${daysUntil} hari lagi`, 
+          color: 'text-blue-600 bg-blue-50',
+          date: trainingDate,
+          type: 'upcoming'
+        };
+      
+      case 'absent':
+        return { 
+          status: 'Tidak Hadir', 
+          color: 'text-red-600 bg-red-50',
+          date: trainingDate,
+          type: 'absent'
+        };
+      
+      default:
+        return { 
+          status: 'Unknown', 
+          color: 'text-gray-600 bg-gray-50',
+          date: trainingDate,
+          type: 'unknown'
+        };
+    }
+  };
+
+  const calculateStats = () => {
+    const attended = trainingHistory.filter(t => t.status === 'attended').length;
+    const absent = trainingHistory.filter(t => t.status === 'absent').length;
+    const upcoming = trainingHistory.filter(t => t.status === 'upcoming').length;
+    
+    return { attended, absent, upcoming };
+  };
+
+  if (loading) return <div className="flex justify-center items-center p-4">Loading employees...</div>;
+
+  const totalPages = Math.ceil(employees.length / employeesPerPage);
+  const startIdx = (currentPage - 1) * employeesPerPage;
+  const visibleEmployees = employees.slice(startIdx, startIdx + employeesPerPage);
+
+  const stats = calculateStats();
+
+  return (
+    <>
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+            <User className="h-5 w-5 mr-2 text-blue-600" />
+            Daftar Karyawan
+          </h3>
+          <span className="text-sm text-gray-500">
+            Total: {employees.length} karyawan
+          </span>
+        </div>
+
+        <div className="space-y-3">
+          {visibleEmployees.map((employee: Employee) => (
+            <div
+              key={employee.id}
+              className={`border border-gray-200 rounded-lg p-4 transition-all duration-200 ${
+                highlightId === employee.id ? 'bg-green-100 animate-pulse' : 'hover:shadow-md'
+              }`}
+            >
+              {editingId === employee.id ? (
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Nama</label>
+                    <input
+                      type="text"
+                      value={editForm.name}
+                      onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Divisi</label>
+                    <input
+                      type="text"
+                      value={editForm.department}
+                      onChange={(e) => setEditForm({ ...editForm, department: e.target.value })}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                    />
+                  </div>
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={() => handleSave(employee.id)}
+                      className="flex items-center bg-green-600 text-white px-3 py-1 rounded-lg text-sm hover:bg-green-700"
+                    >
+                      <Save className="h-4 w-4 mr-1" />
+                      Simpan
+                    </button>
+                    <button
+                      onClick={cancelEdit}
+                      className="flex items-center bg-gray-500 text-white px-3 py-1 rounded-lg text-sm hover:bg-gray-600"
+                    >
+                      <X className="h-4 w-4 mr-1" />
+                      Batal
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <div className="font-medium text-gray-900">{employee.name}</div>
+                    <div className="text-sm text-gray-600">{employee.department}</div>
+                  </div>
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={() => handleViewDetails(employee)}
+                      className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                      title="Lihat Detail"
+                    >
+                      <Eye className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={() => handleEdit(employee)}
+                      className="p-2 text-yellow-600 hover:bg-yellow-50 rounded-lg transition-colors"
+                      title="Edit Karyawan"
+                    >
+                      <Edit className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(employee.id, employee.name)}
+                      className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                      title="Hapus Karyawan"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {totalPages > 1 && (
+          <div className="flex justify-center mt-6 space-x-2">
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
+              <button
+                key={pageNum}
+                onClick={() => setCurrentPage(pageNum)}
+                className={`px-3 py-1 rounded-lg border text-sm ${
+                  currentPage === pageNum
+                    ? "bg-blue-600 text-white border-blue-600"
+                    : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100"
+                }`}
+              >
+                {pageNum}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {detailEmployee && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl shadow-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-semibold text-gray-900">
+                  Detail Karyawan - {detailEmployee.name}
+                </h3>
+                <button
+                  onClick={closeDetail}
+                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+
+              <div className="space-y-6">
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <h4 className="font-medium text-gray-900 mb-3 flex items-center">
+                    <User className="h-5 w-5 mr-2 text-blue-600" />
+                    Informasi Karyawan
+                  </h4>
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <span className="text-gray-600 block mb-1">Nama Lengkap:</span>
+                      <p className="font-medium text-gray-900">{detailEmployee.name}</p>
+                    </div>
+                    <div>
+                      <span className="text-gray-600 block mb-1">Divisi/Department:</span>
+                      <p className="font-medium text-gray-900">{detailEmployee.department}</p>
+                    </div>
+                    <div>
+                      <span className="text-gray-600 block mb-1">ID Karyawan:</span>
+                      <p className="font-medium text-gray-900">#{detailEmployee.id}</p>
+                    </div>
+                    <div>
+                      <span className="text-gray-600 block mb-1">Status:</span>
+                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        Aktif
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="font-medium text-gray-900 mb-3 flex items-center">
+                    <Calendar className="h-5 w-5 mr-2 text-green-600" />
+                    Riwayat Pelatihan & Kehadiran
+                  </h4>
+                  {loadingHistory ? (
+                    <div className="text-center py-4">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+                      <p className="text-gray-500 text-sm mt-2">Memuat riwayat pelatihan...</p>
+                    </div>
+                  ) : trainingHistory.length === 0 ? (
+                    <div className="text-center py-6 border-2 border-dashed border-gray-300 rounded-lg">
+                      <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-2" />
+                      <p className="text-gray-500 text-sm">Belum ada riwayat pelatihan</p>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="space-y-3">
+                        {trainingHistory.map((training, index) => {
+                          const status = getTrainingStatus(training);
+                          return (
+                            <div
+                              key={`${training.training_title}-${index}`}
+                              className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
+                            >
+                              <div className="flex justify-between items-start mb-2">
+                                <div className="flex-1">
+                                  <p className="font-medium text-gray-900">
+                                    {training.training_title}
+                                  </p>
+                                  <div className="flex items-center text-sm text-gray-600 mt-1">
+                                    <Calendar className="h-4 w-4 mr-1" />
+                                    <span>
+                                      {status.date ? status.date.toLocaleDateString('id-ID', {
+                                        weekday: 'long',
+                                        year: 'numeric',
+                                        month: 'long',
+                                        day: 'numeric'
+                                      }) : 'Tanggal tidak tersedia'}
+                                    </span>
+                                  </div>
+                                </div>
+                                <span className={`text-sm font-medium px-3 py-1 rounded-full ${status.color}`}>
+                                  {status.status}
+                                </span>
+                              </div>
+                              {training.attendance_date && (
+                                <div className="flex items-center text-xs text-gray-500">
+                                  <Clock className="h-3 w-3 mr-1" />
+                                  <span>
+                                    Waktu absensi: {new Date(training.attendance_date).toLocaleTimeString('id-ID')}
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      <div className="bg-blue-50 rounded-lg p-4 mt-4">
+                        <h5 className="font-medium text-blue-900 mb-2">Statistik Kehadiran</h5>
+                        <div className="grid grid-cols-3 gap-4 text-sm">
+                          <div className="text-center">
+                            <div className="text-2xl font-bold text-green-600">
+                              {stats.attended}
+                            </div>
+                            <div className="text-blue-800">Hadir</div>
+                          </div>
+                          <div className="text-center">
+                            <div className="text-2xl font-bold text-red-600">
+                              {stats.absent}
+                            </div>
+                            <div className="text-blue-800">Tidak Hadir</div>
+                          </div>
+                          <div className="text-center">
+                            <div className="text-2xl font-bold text-blue-600">
+                              {stats.upcoming}
+                            </div>
+                            <div className="text-blue-800">Upcoming</div>
+                          </div>
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+};
