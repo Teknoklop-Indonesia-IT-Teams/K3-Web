@@ -1,11 +1,11 @@
 // server.js (FINAL REVISI DENGAN PERBAIKAN)
-require('dotenv').config();
-const express = require('express');
-const cors = require('cors');
-const { Pool } = require('pg');
-const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
+require("dotenv").config();
+const express = require("express");
+const cors = require("cors");
+const { Pool } = require("pg");
+const multer = require("multer");
+const path = require("path");
+const fs = require("fs");
 
 const app = express();
 app.use(cors());
@@ -14,11 +14,13 @@ app.use(express.json({ limit: "10mb" }));
 // ====== DATABASE CONNECTION (Single DB) ======
 const makePool = () =>
   new Pool({
-    host: process.env.PG_HOST || 'localhost',
+    host: process.env.PG_HOST || "localhost",
     port: Number(process.env.PG_PORT || 5432),
-    user: process.env.PG_USER || 'postgres',
-    password: process.env.PG_PASSWORD || (process.env.NODE_ENV === 'production' ? undefined : '12345'),
-    database: process.env.DB_K3 || '3_db',
+    user: process.env.PG_USER || "postgres",
+    password:
+      process.env.PG_PASSWORD ||
+      (process.env.NODE_ENV === "production" ? undefined : "12345678"),
+    database: process.env.DB_K3 || "k3",
     max: 10,
   });
 
@@ -34,7 +36,7 @@ const pools = {
 };
 
 // ====== UPLOAD (multer) CONFIG ======
-const uploadDir = path.join(__dirname, 'uploads', 'trainings');
+const uploadDir = path.join(__dirname, "uploads", "trainings");
 fs.mkdirSync(uploadDir, { recursive: true });
 
 const storage = multer.diskStorage({
@@ -42,125 +44,145 @@ const storage = multer.diskStorage({
     cb(null, uploadDir);
   },
   filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    cb(null, `doc-${uniqueSuffix}${path.extname(file.originalname).toLowerCase()}`);
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    cb(
+      null,
+      `doc-${uniqueSuffix}${path.extname(file.originalname).toLowerCase()}`
+    );
   },
 });
 
 const fileFilter = (req, file, cb) => {
   const allowed = [
-    'image/jpeg',
-    'image/jpg',
-    'image/png',
-    'image/webp',
-    'image/heic',
-    'image/heif',
+    "image/jpeg",
+    "image/jpg",
+    "image/png",
+    "image/webp",
+    "image/heic",
+    "image/heif",
   ];
-  if (allowed.includes((file.mimetype || '').toLowerCase())) {
+  if (allowed.includes((file.mimetype || "").toLowerCase())) {
     cb(null, true);
   } else {
-    cb(new Error('Format file tidak didukung. Gunakan JPG, PNG, WEBP, HEIC/HEIF.'));
+    cb(
+      new Error(
+        "Format file tidak didukung. Gunakan JPG, PNG, WEBP, HEIC/HEIF."
+      )
+    );
   }
 };
 
 const upload = multer({ storage, fileFilter });
 
 // Serve static uploads
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // ==========================================================
 // ======================== AUTH ============================
 // ==========================================================
 
 // POST: Login
-app.post('/api/auth/login', async (req, res) => {
+app.post("/api/auth/login", async (req, res) => {
   try {
     const { username, password } = req.body;
 
     if (!username || !password) {
-      return res.status(400).json({ error: 'Username dan password wajib diisi' });
+      return res
+        .status(400)
+        .json({ error: "Username dan password wajib diisi" });
     }
 
-    const validUsers = [
-      { username: 'admin', password: 'admin', role: 'admin' },
-      { username: 'safety', password: 'safety123', role: 'safety_officer' },
-      { username: 'hrd', password: 'hrd123', role: 'hrd' }
-    ];
+    // 🔍 Cek user di database
+    const result = await pool.query(
+      "SELECT username, password, role, name FROM users WHERE username = $1",
+      [username]
+    );
 
-    const user = validUsers.find(u => u.username === username && u.password === password);
-
-    if (!user) {
-      return res.status(401).json({ error: 'Username atau password salah' });
+    if (result.rows.length === 0) {
+      return res.status(401).json({ error: "Username atau password salah" });
     }
 
-    const token = Buffer.from(`${username}:${Date.now()}`).toString('base64');
-    
+    const user = result.rows[0];
+
+    // 🔑 Cek password (untuk sekarang plain text)
+    if (user.password !== password) {
+      return res.status(401).json({ error: "Username atau password salah" });
+    }
+
+    // 🔐 Generate token simple
+    const token = Buffer.from(`${username}:${Date.now()}`).toString("base64");
+
     res.json({
       success: true,
       user: {
         username: user.username,
         role: user.role,
-        name: user.username === 'admin' ? 'Administrator' : 
-              user.username === 'safety' ? 'Safety Officer' : 'HRD Officer'
+        name: user.name,
       },
-      token
+      token,
     });
-
   } catch (err) {
-    console.error('POST /api/auth/login error:', err);
+    console.error("POST /api/auth/login error:", err);
     res.status(500).json({ error: err.message });
   }
 });
 
 // POST: Logout
-app.post('/api/auth/logout', async (req, res) => {
+app.post("/api/auth/logout", async (req, res) => {
   try {
-    res.json({ success: true, message: 'Logout berhasil' });
+    res.json({ success: true, message: "Logout berhasil" });
   } catch (err) {
-    console.error('POST /api/auth/logout error:', err);
+    console.error("POST /api/auth/logout error:", err);
     res.status(500).json({ error: err.message });
   }
 });
 
 // GET: Check auth status
-app.get('/api/auth/check', async (req, res) => {
+app.get("/api/auth/check", async (req, res) => {
   try {
-    const token = req.headers.authorization?.replace('Bearer ', '');
-    
+    const token = req.headers.authorization?.replace("Bearer ", "");
+
     if (!token) {
       return res.status(401).json({ authenticated: false });
     }
 
     try {
-      const decoded = Buffer.from(token, 'base64').toString('ascii');
-      const [username, timestamp] = decoded.split(':');
-      
+      const decoded = Buffer.from(token, "base64").toString("ascii");
+      const [username, timestamp] = decoded.split(":");
+
       const tokenAge = Date.now() - parseInt(timestamp);
       if (tokenAge > 24 * 60 * 60 * 1000) {
         return res.status(401).json({ authenticated: false });
       }
 
-      const validUsers = ['admin', 'safety', 'hrd'];
+      const validUsers = ["admin", "safety", "hrd"];
       if (validUsers.includes(username)) {
-        return res.json({ 
+        return res.json({
           authenticated: true,
           user: {
             username,
-            role: username === 'admin' ? 'admin' : 
-                  username === 'safety' ? 'safety_officer' : 'hrd',
-            name: username === 'admin' ? 'Administrator' : 
-                  username === 'safety' ? 'Safety Officer' : 'HRD Officer'
-          }
+            role:
+              username === "admin"
+                ? "admin"
+                : username === "safety"
+                ? "safety_officer"
+                : "hrd",
+            name:
+              username === "admin"
+                ? "Administrator"
+                : username === "safety"
+                ? "Safety Officer"
+                : "HRD Officer",
+          },
         });
       }
     } catch (decodeErr) {
-      console.error('Token decode error:', decodeErr);
+      console.error("Token decode error:", decodeErr);
     }
 
     res.status(401).json({ authenticated: false });
-
   } catch (err) {
-    console.error('GET /api/auth/check error:', err);
+    console.error("GET /api/auth/check error:", err);
     res.status(500).json({ error: err.message });
   }
 });
@@ -170,7 +192,7 @@ app.get('/api/auth/check', async (req, res) => {
 // ==========================================================
 
 // GET: list pelatihan + jumlah peserta unik
-app.get('/api/attendance/list', async (req, res) => {
+app.get("/api/attendance/list", async (req, res) => {
   try {
     const { rows } = await pools.training.query(`
       SELECT 
@@ -184,17 +206,19 @@ app.get('/api/attendance/list', async (req, res) => {
     `);
     res.json(rows);
   } catch (err) {
-    console.error('GET /attendance/list error:', err);
+    console.error("GET /attendance/list error:", err);
     res.status(500).json({ error: err.message });
   }
 });
 
 // POST: submit attendance
-app.post('/api/training-attendance', async (req, res) => {
+app.post("/api/training-attendance", async (req, res) => {
   try {
     const { training_id, participant_name, notes, signature } = req.body;
     if (!training_id || !participant_name || !signature) {
-      return res.status(400).json({ error: 'training_id, participant_name, and signature are required' });
+      return res.status(400).json({
+        error: "training_id, participant_name, and signature are required",
+      });
     }
 
     const q = `
@@ -207,13 +231,13 @@ app.post('/api/training-attendance', async (req, res) => {
 
     res.status(201).json(rows[0]);
   } catch (err) {
-    console.error('❌ Insert attendance error:', err);
+    console.error("❌ Insert attendance error:", err);
     res.status(500).json({ error: err.message });
   }
 });
 
 // GET: absensi terbaru (50 terakhir)
-app.get('/api/attendance/recent', async (req, res) => {
+app.get("/api/attendance/recent", async (req, res) => {
   try {
     const { rows } = await pools.training.query(`
       SELECT id, training_id, participant_name, timestamp, notes, signature_data
@@ -223,13 +247,13 @@ app.get('/api/attendance/recent', async (req, res) => {
     `);
     res.json(rows);
   } catch (err) {
-    console.error('GET /attendance/recent error:', err);
+    console.error("GET /attendance/recent error:", err);
     res.status(500).json({ error: err.message });
   }
 });
 
 // GET: semua absensi
-app.get('/api/attendance', async (req, res) => {
+app.get("/api/attendance", async (req, res) => {
   try {
     const { rows } = await pools.training.query(`
       SELECT id, training_id, participant_name, timestamp, notes, signature_data
@@ -238,16 +262,16 @@ app.get('/api/attendance', async (req, res) => {
     `);
     res.json(rows);
   } catch (err) {
-    console.error('GET /api/attendance error:', err);
+    console.error("GET /api/attendance error:", err);
     res.status(500).json({ error: err.message });
   }
 });
 
 // GET: statistik absensi
-app.get('/api/attendance/stats', async (req, res) => {
+app.get("/api/attendance/stats", async (req, res) => {
   try {
     const today = new Date();
-    const todayDate = today.toISOString().split('T')[0];
+    const todayDate = today.toISOString().split("T")[0];
 
     const hadirQuery = `
       SELECT COUNT(DISTINCT participant_name) AS hadir_hari_ini
@@ -282,34 +306,44 @@ app.get('/api/attendance/stats', async (req, res) => {
 
     const hadir = await pools.training.query(hadirQuery, [todayDate]);
     const rata = await pools.training.query(rataJamQuery, [todayDate]);
-    const minggu = await pools.training.query(mingguQuery, [weekStart, weekEnd]);
-    const bulan = await pools.training.query(bulanQuery, [bulanAwal, bulanAkhir]);
+    const minggu = await pools.training.query(mingguQuery, [
+      weekStart,
+      weekEnd,
+    ]);
+    const bulan = await pools.training.query(bulanQuery, [
+      bulanAwal,
+      bulanAkhir,
+    ]);
 
     res.json({
       hadir_hari_ini: parseInt(hadir.rows[0].hadir_hari_ini) || 0,
       rata_jam_masuk: parseFloat(rata.rows[0].rata_jam_masuk) || 0,
-      kehadiran_minggu_ini: ((parseInt(minggu.rows[0].hari_hadir) || 0) / 5) * 100 || 0,
-      hari_kerja_bulan_ini: parseInt(bulan.rows[0].hari_kerja) || 0
+      kehadiran_minggu_ini:
+        ((parseInt(minggu.rows[0].hari_hadir) || 0) / 5) * 100 || 0,
+      hari_kerja_bulan_ini: parseInt(bulan.rows[0].hari_kerja) || 0,
     });
   } catch (err) {
-    console.error('GET /attendance/stats error:', err);
+    console.error("GET /attendance/stats error:", err);
     res.status(500).json({ error: err.message });
   }
 });
 
 // GET: peserta per pelatihan
-app.get('/api/attendance/:trainingId/participants', async (req, res) => {
+app.get("/api/attendance/:trainingId/participants", async (req, res) => {
   try {
     const { trainingId } = req.params;
-    const { rows } = await pools.training.query(`
+    const { rows } = await pools.training.query(
+      `
       SELECT participant_name, timestamp, notes
       FROM training_attendance
       WHERE training_id = $1
       ORDER BY timestamp ASC
-    `, [trainingId]);
+    `,
+      [trainingId]
+    );
     res.json(rows);
   } catch (err) {
-    console.error('GET /attendance/:trainingId/participants error:', err);
+    console.error("GET /attendance/:trainingId/participants error:", err);
     res.status(500).json({ error: err.message });
   }
 });
@@ -317,7 +351,7 @@ app.get('/api/attendance/:trainingId/participants', async (req, res) => {
 // ==========================================================
 // ======================== HEALTH ==========================
 // ==========================================================
-app.get('/api/health/checks', async (req, res) => {
+app.get("/api/health/checks", async (req, res) => {
   try {
     const { rows } = await pools.health.query(`
       SELECT 
@@ -340,12 +374,12 @@ app.get('/api/health/checks', async (req, res) => {
     `);
     res.json(rows);
   } catch (err) {
-    console.error('GET /api/health/checks error:', err);
+    console.error("GET /api/health/checks error:", err);
     res.status(500).json({ error: err.message });
   }
 });
 
-app.post('/api/health/checks', async (req, res) => {
+app.post("/api/health/checks", async (req, res) => {
   try {
     const {
       employee_name,
@@ -357,7 +391,7 @@ app.post('/api/health/checks', async (req, res) => {
       blood_sugar,
       cholesterol,
       notes,
-      signature
+      signature,
     } = req.body;
 
     if (!employee_name) {
@@ -387,12 +421,12 @@ app.post('/api/health/checks', async (req, res) => {
 
     res.status(201).json(rows[0]);
   } catch (err) {
-    console.error('POST /api/health/checks error:', err);
+    console.error("POST /api/health/checks error:", err);
     res.status(500).json({ error: err.message });
   }
 });
 
-app.get('/api/health/stats', async (req, res) => {
+app.get("/api/health/stats", async (req, res) => {
   try {
     const q = `
       SELECT 
@@ -416,19 +450,19 @@ app.get('/api/health/stats', async (req, res) => {
 // ==========================================================
 // ======================== EMPLOYEES =======================
 // ==========================================================
-app.get('/api/employees', async (req, res) => {
+app.get("/api/employees", async (req, res) => {
   try {
     const { rows } = await pools.employees.query(
-      'SELECT * FROM employees ORDER BY created_at DESC LIMIT 500'
+      "SELECT * FROM employees ORDER BY created_at ASC LIMIT 500"
     );
     res.json(rows);
   } catch (err) {
-    console.error('GET /api/employees error:', err);
+    console.error("GET /api/employees error:", err);
     res.status(500).json({ error: err.message });
   }
 });
 
-app.post('/api/employees', async (req, res) => {
+app.post("/api/employees", async (req, res) => {
   try {
     const { name, department } = req.body;
     const q = `INSERT INTO employees (name, department) VALUES ($1,$2) RETURNING *`;
@@ -436,19 +470,19 @@ app.post('/api/employees', async (req, res) => {
     const { rows } = await pools.employees.query(q, values);
     res.status(201).json(rows[0]);
   } catch (err) {
-    console.error('❌ Insert employee error:', err);
+    console.error("❌ Insert employee error:", err);
     res.status(500).json({ error: err.message, code: err.code || null });
   }
 });
 
 // EDIT KARYAWAN
-app.put('/api/employees/:id', async (req, res) => {
+app.put("/api/employees/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const { name, division } = req.body;
-    
+
     if (!name || !division) {
-      return res.status(400).json({ error: 'Name and division are required' });
+      return res.status(400).json({ error: "Name and division are required" });
     }
 
     const q = `
@@ -459,42 +493,42 @@ app.put('/api/employees/:id', async (req, res) => {
     `;
     const values = [name, division, id];
     const { rows } = await pools.employees.query(q, values);
-    
+
     if (rows.length === 0) {
-      return res.status(404).json({ error: 'Employee not found' });
+      return res.status(404).json({ error: "Employee not found" });
     }
-    
+
     res.json(rows[0]);
   } catch (err) {
-    console.error('PUT /api/employees/:id error:', err);
+    console.error("PUT /api/employees/:id error:", err);
     res.status(500).json({ error: err.message });
   }
 });
 
 // HAPUS KARYAWAN
-app.delete('/api/employees/:id', async (req, res) => {
+app.delete("/api/employees/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    
+
     const q = `DELETE FROM employees WHERE id = $1 RETURNING *`;
     const { rows } = await pools.employees.query(q, [id]);
-    
+
     if (rows.length === 0) {
-      return res.status(404).json({ error: 'Employee not found' });
+      return res.status(404).json({ error: "Employee not found" });
     }
-    
-    res.json({ message: 'Employee deleted successfully', deleted: rows[0] });
+
+    res.json({ message: "Employee deleted successfully", deleted: rows[0] });
   } catch (err) {
-    console.error('DELETE /api/employees/:id error:', err);
+    console.error("DELETE /api/employees/:id error:", err);
     res.status(500).json({ error: err.message });
   }
 });
 
 // ENDPOINT BARU: RIWAYAT LENGKAP KARYAWAN (HADIR + TIDAK HADIR)
-app.get('/api/employees/:employeeName/training-history', async (req, res) => {
+app.get("/api/employees/:employeeName/training-history", async (req, res) => {
   try {
     const { employeeName } = req.params;
-    
+
     const q = `
       -- Dapatkan semua pelatihan
       SELECT 
@@ -510,20 +544,23 @@ app.get('/api/employees/:employeeName/training-history', async (req, res) => {
       LEFT JOIN training_attendance ta ON t.id = ta.training_id AND ta.participant_name = $1
       ORDER BY t.start_time DESC
     `;
-    
+
     const { rows } = await pools.training.query(q, [employeeName]);
     res.json(rows);
   } catch (err) {
-    console.error('GET /api/employees/:employeeName/training-history error:', err);
+    console.error(
+      "GET /api/employees/:employeeName/training-history error:",
+      err
+    );
     res.status(500).json({ error: err.message });
   }
 });
 
 // ENDPOINT LAMA: HANYA ABSENSI YANG ADA
-app.get('/api/training-attendance', async (req, res) => {
+app.get("/api/training-attendance", async (req, res) => {
   try {
     const { participant } = req.query;
-    
+
     let q = `
       SELECT 
         ta.id,
@@ -535,25 +572,25 @@ app.get('/api/training-attendance', async (req, res) => {
       FROM training_attendance ta
       LEFT JOIN trainings t ON ta.training_id = t.id
     `;
-    
+
     const values = [];
-    
+
     if (participant) {
       q += ` WHERE ta.participant_name = $1`;
       values.push(participant);
     }
-    
+
     q += ` ORDER BY ta.timestamp DESC`;
-    
+
     const { rows } = await pools.training.query(q, values);
     res.json(rows);
   } catch (err) {
-    console.error('GET /api/training-attendance error:', err);
+    console.error("GET /api/training-attendance error:", err);
     res.status(500).json({ error: err.message });
   }
 });
 
-app.get('/api/employees/stats', async (req, res) => {
+app.get("/api/employees/stats", async (req, res) => {
   try {
     const q = `
       SELECT department, COUNT(*) AS count
@@ -565,7 +602,7 @@ app.get('/api/employees/stats', async (req, res) => {
     const total = rows.reduce((sum, r) => sum + Number(r.count), 0);
     res.json({ total, stats: rows });
   } catch (err) {
-    console.error('GET /api/employees/stats error:', err);
+    console.error("GET /api/employees/stats error:", err);
     res.status(500).json({ error: err.message });
   }
 });
@@ -574,7 +611,7 @@ app.get('/api/employees/stats', async (req, res) => {
 // ======================== SAFETY ==========================
 // ==========================================================
 // GET all reports
-app.get('/api/safety/reports', async (req, res) => {
+app.get("/api/safety/reports", async (req, res) => {
   try {
     const { rows } = await pools.safety.query(`
       SELECT *
@@ -584,30 +621,39 @@ app.get('/api/safety/reports', async (req, res) => {
     `);
     res.json(rows);
   } catch (err) {
-    console.error('GET /api/safety/reports error:', err);
+    console.error("GET /api/safety/reports error:", err);
     res.status(500).json({ error: err.message });
   }
 });
 
 // POST new report
-app.post('/api/safety/reports', async (req, res) => {
+app.post("/api/safety/reports", async (req, res) => {
   try {
     const {
-      title, severity, status, location,
-      incident_date, incident_time, description,
-      reporter_name, witnesses, immediate_action
+      title,
+      incident_type,
+      severity,
+      status,
+      location,
+      incident_date,
+      incident_time,
+      description,
+      reporter_name,
+      witnesses,
+      immediate_action,
     } = req.body;
 
     const q = `
       INSERT INTO incidents 
-        (title, severity, status, location, incident_date, incident_time, description, witnesses, immediate_action, reporter_name, reported_at)
-      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,NOW())
+        (title, incident_type, severity, status, location, incident_date, incident_time, description, witnesses, immediate_action, reporter_name, reported_at)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, NOW())
       RETURNING *
     `;
     const values = [
       title,
+      incident_type || null,
       severity,
-      status || 'pending',
+      status || "pending",
       location || null,
       incident_date || null,
       incident_time || null,
@@ -620,18 +666,18 @@ app.post('/api/safety/reports', async (req, res) => {
     const { rows } = await pools.safety.query(q, values);
     res.status(201).json(rows[0]);
   } catch (err) {
-    console.error('POST /api/safety/reports error:', err);
+    console.error("POST /api/safety/reports error:", err);
     res.status(500).json({ error: err.message });
   }
 });
 
 // PUT update status
-app.put('/api/safety/reports/:id/status', async (req, res) => {
+app.put("/api/safety/reports/:id/status", async (req, res) => {
   try {
     const { id } = req.params;
     const { status, completed_at } = req.body;
 
-    const allowedStatuses = ['pending', 'investigasi', 'selesai'];
+    const allowedStatuses = ["pending", "investigasi", "selesai"];
     if (!status || !allowedStatuses.includes(status)) {
       return res.status(400).json({ error: "Status tidak valid" });
     }
@@ -648,11 +694,7 @@ app.put('/api/safety/reports/:id/status', async (req, res) => {
       RETURNING *
     `;
 
-    const values = [
-      status,
-      completed_at ? new Date(completed_at) : null,
-      id,
-    ];
+    const values = [status, completed_at ? new Date(completed_at) : null, id];
 
     const { rows } = await pools.safety.query(q, values);
 
@@ -662,13 +704,13 @@ app.put('/api/safety/reports/:id/status', async (req, res) => {
 
     res.json(rows[0]);
   } catch (err) {
-    console.error('❌ PUT /api/safety/reports/:id/status error:', err);
+    console.error("❌ PUT /api/safety/reports/:id/status error:", err);
     res.status(500).json({ error: err.message });
   }
 });
 
 // GET stats
-app.get('/api/safety/reports/stats', async (req, res) => {
+app.get("/api/safety/reports/stats", async (req, res) => {
   try {
     const q = `
       SELECT 
@@ -681,7 +723,7 @@ app.get('/api/safety/reports/stats', async (req, res) => {
     const { rows } = await pools.safety.query(q);
     res.json(rows[0]);
   } catch (err) {
-    console.error('GET /api/safety/reports/stats error:', err);
+    console.error("GET /api/safety/reports/stats error:", err);
     res.status(500).json({ error: err.message });
   }
 });
@@ -689,7 +731,7 @@ app.get('/api/safety/reports/stats', async (req, res) => {
 // ==========================================================
 // ======================== TRAININGS =======================
 // ==========================================================
-app.get('/api/trainings/upcoming', async (req, res) => {
+app.get("/api/trainings/upcoming", async (req, res) => {
   try {
     const { rows } = await pools.training.query(`
       SELECT id, title, trainer, start_time, duration_hours, documentation_url, created_at, updated_at
@@ -699,12 +741,12 @@ app.get('/api/trainings/upcoming', async (req, res) => {
     `);
     res.json(rows);
   } catch (err) {
-    console.error('GET /api/trainings/upcoming error:', err);
+    console.error("GET /api/trainings/upcoming error:", err);
     res.status(500).json({ error: err.message });
   }
 });
 
-app.get('/api/trainings', async (req, res) => {
+app.get("/api/trainings", async (req, res) => {
   try {
     const { rows } = await pools.training.query(`
       SELECT id, title, trainer, start_time, duration_hours, documentation_url, created_at, updated_at
@@ -714,65 +756,81 @@ app.get('/api/trainings', async (req, res) => {
     `);
     res.json(rows);
   } catch (err) {
-    console.error('GET /api/trainings error:', err);
+    console.error("GET /api/trainings error:", err);
     res.status(500).json({ error: err.message });
   }
 });
 
-app.post('/api/trainings', upload.single('documentation'), async (req, res) => {
+app.post("/api/trainings", upload.single("documentation"), async (req, res) => {
   try {
     const { title, trainer, date, duration } = req.body;
     if (!title || !trainer || !date || !duration) {
-      return res.status(400).json({ error: 'title, trainer, date, and duration are required' });
+      return res
+        .status(400)
+        .json({ error: "title, trainer, date, and duration are required" });
     }
 
-    const documentation_url = req.file ? `/uploads/trainings/${req.file.filename}` : null;
+    const documentation_url = req.file
+      ? `/uploads/trainings/${req.file.filename}`
+      : null;
 
     const q = `
       INSERT INTO trainings (title, trainer, start_time, duration_hours, documentation_url, created_at)
       VALUES ($1, $2, $3, $4, $5, NOW())
       RETURNING *
     `;
-    const values = [title, trainer, new Date(date), Number(duration), documentation_url];
+    const values = [
+      title,
+      trainer,
+      new Date(date),
+      Number(duration),
+      documentation_url,
+    ];
     const { rows } = await pools.training.query(q, values);
     res.status(201).json(rows[0]);
   } catch (err) {
-    console.error('POST /api/trainings error:', err);
+    console.error("POST /api/trainings error:", err);
     res.status(500).json({ error: err.message });
   }
 });
 
-app.put('/api/trainings/:id/documentation', upload.single('documentation'), async (req, res) => {
-  try {
-    const { id } = req.params;
-    if (!req.file) {
-      return res.status(400).json({ error: 'file documentation is required' });
-    }
+app.put(
+  "/api/trainings/:id/documentation",
+  upload.single("documentation"),
+  async (req, res) => {
+    try {
+      const { id } = req.params;
+      if (!req.file) {
+        return res
+          .status(400)
+          .json({ error: "file documentation is required" });
+      }
 
-    const documentation_url = `/uploads/trainings/${req.file.filename}`;
+      const documentation_url = `/uploads/trainings/${req.file.filename}`;
 
-    const q = `
+      const q = `
       UPDATE trainings
       SET documentation_url = $1, updated_at = NOW()
       WHERE id = $2
       RETURNING *
     `;
-    const values = [documentation_url, id];
-    const { rows } = await pools.training.query(q, values);
-    if (!rows || rows.length === 0) {
-      return res.status(404).json({ error: 'Training not found' });
+      const values = [documentation_url, id];
+      const { rows } = await pools.training.query(q, values);
+      if (!rows || rows.length === 0) {
+        return res.status(404).json({ error: "Training not found" });
+      }
+      res.json(rows[0]);
+    } catch (err) {
+      console.error("PUT /api/trainings/:id/documentation error:", err);
+      res.status(500).json({ error: err.message });
     }
-    res.json(rows[0]);
-  } catch (err) {
-    console.error('PUT /api/trainings/:id/documentation error:', err);
-    res.status(500).json({ error: err.message });
   }
-});
+);
 
 // ==========================================================
 // ======================== ACTIVITY FEED ===================
 // ==========================================================
-app.get('/api/activity/recent', async (req, res) => {
+app.get("/api/activity/recent", async (req, res) => {
   try {
     const activities = [];
 
@@ -785,8 +843,10 @@ app.get('/api/activity/recent', async (req, res) => {
     activities.push(
       ...attendance.rows.map((a) => ({
         id: `attendance-${a.id}`,
-        type: 'attendance',
-        message: `${a.employee_name} ${a.type === 'clock_in' ? 'clock-in' : 'clock-out'}`,
+        type: "attendance",
+        message: `${a.employee_name} ${
+          a.type === "clock_in" ? "clock-in" : "clock-out"
+        }`,
         time: a.timestamp,
       }))
     );
@@ -794,13 +854,13 @@ app.get('/api/activity/recent', async (req, res) => {
     const employees = await pools.employees.query(`
       SELECT id, name, created_at
       FROM employees
-      ORDER BY created_at DESC
+      ORDER BY created_at ASC
       LIMIT 10
     `);
     activities.push(
       ...employees.rows.map((e) => ({
         id: `employee-${e.id}`,
-        type: 'employee',
+        type: "employee",
         message: `Karyawan baru ditambahkan - ${e.name}`,
         time: e.created_at,
       }))
@@ -815,7 +875,7 @@ app.get('/api/activity/recent', async (req, res) => {
     activities.push(
       ...health.rows.map((h) => ({
         id: `health-${h.id}`,
-        type: 'health',
+        type: "health",
         message: `Pemeriksaan kesehatan - ${h.employee_name}`,
         time: h.measured_at,
       }))
@@ -830,8 +890,10 @@ app.get('/api/activity/recent', async (req, res) => {
     activities.push(
       ...safety.rows.map((s) => ({
         id: `incident-${s.id}`,
-        type: 'incident',
-        message: `Laporan insiden - ${s.title || s.description || 'Tanpa judul'}`,
+        type: "incident",
+        message: `Laporan insiden - ${
+          s.title || s.description || "Tanpa judul"
+        }`,
         time: s.reported_at,
       }))
     );
@@ -845,7 +907,7 @@ app.get('/api/activity/recent', async (req, res) => {
     activities.push(
       ...trainings.rows.map((t) => ({
         id: `training-${t.id}`,
-        type: 'training',
+        type: "training",
         message: `Pelatihan baru dijadwalkan: ${t.title}`,
         time: t.start_time,
       }))
@@ -855,18 +917,20 @@ app.get('/api/activity/recent', async (req, res) => {
 
     res.json(activities.slice(0, 20));
   } catch (err) {
-    console.error('GET /api/activity/recent error:', err);
+    console.error("GET /api/activity/recent error:", err);
     res.status(500).json({ error: err.message });
   }
 });
 
 // Pastikan di atas semua route, sebelum app.listen
-const publicDir = path.join(__dirname, 'public');
+const publicDir = path.join(__dirname, "public");
 fs.mkdirSync(publicDir, { recursive: true });
 
 // Serve semua file di public secara statik
-app.use('/template.png', express.static(path.join(publicDir, 'template.png')));
+app.use("/template.png", express.static(path.join(publicDir, "template.png")));
 
 // ====== START SERVER ======
 const port = Number(process.env.PORT || 4000);
-app.listen(port, () => console.log('✅ Backend running on http://localhost:' + port));
+app.listen(port, () =>
+  console.log("✅ Backend running on http://localhost:" + port)
+);

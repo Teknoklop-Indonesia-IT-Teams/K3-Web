@@ -23,7 +23,9 @@ interface HealthChartsProps {
   refreshTrigger: number;
 }
 
-export const HealthCharts: React.FC<HealthChartsProps> = ({ refreshTrigger }) => {
+export const HealthCharts: React.FC<HealthChartsProps> = ({
+  refreshTrigger,
+}) => {
   const [rawData, setRawData] = useState<HealthCheck[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -37,7 +39,9 @@ export const HealthCharts: React.FC<HealthChartsProps> = ({ refreshTrigger }) =>
   useEffect(() => {
     const fetchChecks = async () => {
       try {
-        const res = await fetch("http://localhost:4000/api/health/checks");
+        const res = await fetch(
+          `${import.meta.env.VITE_API_BASE}/api/health/checks`
+        );
         const json = await res.json();
         setRawData(json);
       } catch (err) {
@@ -82,13 +86,29 @@ export const HealthCharts: React.FC<HealthChartsProps> = ({ refreshTrigger }) =>
 
     const summary: any[] = [];
     Object.keys(grouped).forEach((day) => {
-      const rows = grouped[day]; 
+      const rows = grouped[day];
 
       const metrics = [
-        { key: "systolic", label: "Sistolik", allow: metric === "all" || metric === "bp" },
-        { key: "diastolic", label: "Diastolik", allow: metric === "all" || metric === "bp" },
-        { key: "sugar", label: "Gula", allow: metric === "all" || metric === "sugar" },
-        { key: "cholesterol", label: "Kolesterol", allow: metric === "all" || metric === "cholesterol" },
+        {
+          key: "systolic",
+          label: "Sistolik",
+          allow: metric === "all" || metric === "bp",
+        },
+        {
+          key: "diastolic",
+          label: "Diastolik",
+          allow: metric === "all" || metric === "bp",
+        },
+        {
+          key: "sugar",
+          label: "Gula",
+          allow: metric === "all" || metric === "sugar",
+        },
+        {
+          key: "cholesterol",
+          label: "Kolesterol",
+          allow: metric === "all" || metric === "cholesterol",
+        },
       ];
 
       metrics.forEach(({ key, label, allow }) => {
@@ -96,7 +116,7 @@ export const HealthCharts: React.FC<HealthChartsProps> = ({ refreshTrigger }) =>
 
         const values = rows
           .map((r) => {
-            const raw = r[key as keyof typeof rows[0]];
+            const raw = r[key as keyof (typeof rows)[0]];
             return raw !== null && raw !== undefined ? Number(raw) : null;
           })
           .filter((v) => v !== null) as number[];
@@ -135,7 +155,10 @@ export const HealthCharts: React.FC<HealthChartsProps> = ({ refreshTrigger }) =>
 
   // ✅ pagination summary data
   const totalPages = Math.ceil(summaryData.length / pageSize);
-  const paginatedData = summaryData.slice((page - 1) * pageSize, page * pageSize);
+  const paginatedData = summaryData.slice(
+    (page - 1) * pageSize,
+    page * pageSize
+  );
 
   if (loading) return <p className="text-gray-500">Loading grafik...</p>;
   if (rawData.length === 0)
@@ -165,7 +188,9 @@ export const HealthCharts: React.FC<HealthChartsProps> = ({ refreshTrigger }) =>
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-3">
-        <h3 className="text-lg font-semibold text-gray-900">Grafik Kesehatan</h3>
+        <h3 className="text-lg font-semibold text-gray-900">
+          Grafik Kesehatan
+        </h3>
         <div className="flex flex-wrap gap-2">
           <input
             type="text"
@@ -216,8 +241,7 @@ export const HealthCharts: React.FC<HealthChartsProps> = ({ refreshTrigger }) =>
                   strokeWidth={3}
                   dot={{ fill: "#dc2626", r: 5 }}
                   name="Sistolik"
-                >
-                </Line>
+                ></Line>
                 <Line
                   type="monotone"
                   dataKey="diastolic"
@@ -225,8 +249,7 @@ export const HealthCharts: React.FC<HealthChartsProps> = ({ refreshTrigger }) =>
                   strokeWidth={3}
                   dot={{ fill: "#2563eb", r: 5 }}
                   name="Diastolik"
-                >
-                </Line>
+                ></Line>
               </>
             )}
 
@@ -238,8 +261,7 @@ export const HealthCharts: React.FC<HealthChartsProps> = ({ refreshTrigger }) =>
                 strokeWidth={3}
                 dot={{ fill: "#16a34a", r: 5 }}
                 name="Gula"
-              >
-              </Line>
+              ></Line>
             )}
 
             {(metric === "all" || metric === "cholesterol") && (
@@ -250,8 +272,7 @@ export const HealthCharts: React.FC<HealthChartsProps> = ({ refreshTrigger }) =>
                 strokeWidth={3}
                 dot={{ fill: "#9333ea", r: 5 }}
                 name="Kolesterol"
-              >
-              </Line>
+              ></Line>
             )}
           </LineChart>
         </ResponsiveContainer>
@@ -272,7 +293,9 @@ export const HealthCharts: React.FC<HealthChartsProps> = ({ refreshTrigger }) =>
                   <td className="px-4 py-2 border">{row.date}</td>
                   <td className="px-4 py-2 border">{row.name}</td>
                   <td className="px-4 py-2 border">{row.jenis}</td>
-                  <td className="px-4 py-2 border font-semibold">{row.nilai}</td>
+                  <td className="px-4 py-2 border font-semibold">
+                    {row.nilai}
+                  </td>
                 </tr>
               ))}
               {paginatedData.length === 0 && (

@@ -45,7 +45,9 @@ export const HealthHistory: React.FC<HealthHistoryProps> = ({
 
   const fetchChecks = async () => {
     try {
-      const res = await fetch("http://localhost:4000/api/health/checks");
+      const res = await fetch(
+        `${import.meta.env.VITE_API_BASE}/api/health/checks`
+      );
       const data = await res.json();
       setChecks(data);
     } catch (err) {
@@ -67,7 +69,7 @@ export const HealthHistory: React.FC<HealthHistoryProps> = ({
       const dateStr = date.toISOString().split("T")[0];
       dates.add(dateStr);
     });
-    
+
     return Array.from(dates).sort().reverse(); // Urutkan dari terbaru
   }, [checks]);
 
@@ -138,7 +140,9 @@ export const HealthHistory: React.FC<HealthHistoryProps> = ({
 
       let imgData: string | null = null;
       try {
-        imgData = await loadImageAsDataURL("http://localhost:4000/template.png");
+        imgData = await loadImageAsDataURL(
+          `${import.meta.env.VITE_API_BASE}/template.png`
+        );
       } catch {
         console.warn(
           "Template image gagal di-load, PDF tetap dibuat tanpa background."
@@ -179,7 +183,7 @@ export const HealthHistory: React.FC<HealthHistoryProps> = ({
           ],
           body: chunk.map((row, idx) => {
             const nomor = i + idx + 1;
-            
+
             return [
               nomor,
               row.employee_name,
@@ -212,34 +216,34 @@ export const HealthHistory: React.FC<HealthHistoryProps> = ({
           },
           headStyles: { fillColor: [255, 255, 255], textColor: [0, 0, 0] },
           margin: { left: 10, right: 10 },
-          didDrawCell: function(data) {
-            if (data.section === 'body' && data.column.index === 6) {
+          didDrawCell: function (data) {
+            if (data.section === "body" && data.column.index === 6) {
               const rowIndex = data.row.index;
               const rowData = chunk[rowIndex];
-              
+
               if (rowData?.signature_data) {
                 try {
                   const imgWidth = 25;
                   const imgHeight = 10;
                   const x = data.cell.x + (data.cell.width - imgWidth) / 2;
                   const y = data.cell.y + (data.cell.height - imgHeight) / 2;
-                  
+
                   doc.addImage(
                     rowData.signature_data,
-                    'PNG',
+                    "PNG",
                     x,
                     y,
                     imgWidth,
                     imgHeight
                   );
                 } catch (err) {
-                  console.warn('Gagal menambahkan tanda tangan:', err);
+                  console.warn("Gagal menambahkan tanda tangan:", err);
                   doc.setFontSize(8);
                   doc.text(
-                    '✓',
+                    "✓",
                     data.cell.x + data.cell.width / 2,
                     data.cell.y + data.cell.height / 2,
-                    { align: 'center', baseline: 'middle' }
+                    { align: "center", baseline: "middle" }
                   );
                 }
               }
@@ -260,9 +264,14 @@ export const HealthHistory: React.FC<HealthHistoryProps> = ({
 
           doc.setFontSize(10);
           doc.setFont("helvetica", "normal");
-          doc.text(`Malang, ${selectedDateLocale}`, pageWidth - 20, finalY + 20, {
-            align: "right",
-          });
+          doc.text(
+            `Malang, ${selectedDateLocale}`,
+            pageWidth - 20,
+            finalY + 20,
+            {
+              align: "right",
+            }
+          );
 
           doc.setFont("helvetica", "bold");
           doc.text("ACHMAD ROFIUDDIN H.F.", pageWidth - 20, finalY + 50, {
@@ -287,7 +296,8 @@ export const HealthHistory: React.FC<HealthHistoryProps> = ({
     }
   };
 
-  if (loading) return <p className="text-gray-500">Loading data kesehatan...</p>;
+  if (loading)
+    return <p className="text-gray-500">Loading data kesehatan...</p>;
   if (checks.length === 0)
     return <p className="text-gray-500">Belum ada data kesehatan</p>;
 
@@ -297,7 +307,7 @@ export const HealthHistory: React.FC<HealthHistoryProps> = ({
         <h3 className="text-lg font-semibold text-gray-900 flex items-center">
           <Heart className="h-5 w-5 mr-2 text-red-600" /> Riwayat Pemeriksaan
         </h3>
-        
+
         <div className="flex flex-col sm:flex-row gap-3">
           {/* Date Picker */}
           <div className="flex items-center gap-2">
@@ -311,10 +321,10 @@ export const HealthHistory: React.FC<HealthHistoryProps> = ({
               {dateOptions.map((date) => {
                 const dateObj = new Date(date);
                 const dateLabel = dateObj.toLocaleDateString("id-ID", {
-                  weekday: 'long',
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric'
+                  weekday: "long",
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
                 });
                 return (
                   <option key={date} value={date}>
@@ -357,9 +367,7 @@ export const HealthHistory: React.FC<HealthHistoryProps> = ({
             className="p-4 border rounded-lg hover:bg-gray-50 transition"
           >
             <div className="flex items-center justify-between">
-              <div className="font-medium text-gray-900">
-                {h.employee_name}
-              </div>
+              <div className="font-medium text-gray-900">{h.employee_name}</div>
               <div className="text-sm text-gray-500">
                 {new Date(h.measured_at).toLocaleString("id-ID")}
               </div>
@@ -379,15 +387,11 @@ export const HealthHistory: React.FC<HealthHistoryProps> = ({
               </div>
               <div className="flex items-center text-gray-700">
                 <Droplet className="h-4 w-4 mr-1 text-gray-400" />
-                <span>
-                  {h.blood_sugar ? `${h.blood_sugar} mg/dL` : "—"}
-                </span>
+                <span>{h.blood_sugar ? `${h.blood_sugar} mg/dL` : "—"}</span>
               </div>
               <div className="flex items-center text-gray-700">
                 <Beaker className="h-4 w-4 mr-1 text-gray-400" />
-                <span>
-                  {h.cholesterol ? `${h.cholesterol} mg/dL` : "—"}
-                </span>
+                <span>{h.cholesterol ? `${h.cholesterol} mg/dL` : "—"}</span>
               </div>
             </div>
             {h.notes && (

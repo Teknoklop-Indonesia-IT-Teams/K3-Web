@@ -20,7 +20,9 @@ export const HealthStats: React.FC<HealthStatsProps> = ({ refreshTrigger }) => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const res = await fetch("http://localhost:4000/api/health/stats");
+        const res = await fetch(
+          `${import.meta.env.VITE_API_BASE}/api/health/stats`
+        );
         const data = await res.json();
         setStats(data);
       } catch (err) {
@@ -42,7 +44,9 @@ export const HealthStats: React.FC<HealthStatsProps> = ({ refreshTrigger }) => {
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm font-medium text-gray-500">Rata-rata Tekanan Darah</p>
+            <p className="text-sm font-medium text-gray-500">
+              Rata-rata Tekanan Darah
+            </p>
             <p className="text-2xl font-bold text-gray-900">
               {stats.avg_systolic}/{stats.avg_diastolic}
             </p>
@@ -57,8 +61,12 @@ export const HealthStats: React.FC<HealthStatsProps> = ({ refreshTrigger }) => {
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm font-medium text-gray-500">Rata-rata Detak Jantung</p>
-            <p className="text-2xl font-bold text-gray-900">{stats.avg_heart_rate} bpm</p>
+            <p className="text-sm font-medium text-gray-500">
+              Rata-rata Detak Jantung
+            </p>
+            <p className="text-2xl font-bold text-gray-900">
+              {stats.avg_heart_rate} bpm
+            </p>
           </div>
           <div className="p-3 bg-blue-100 rounded-lg">
             <Activity className="h-6 w-6 text-blue-600" />
@@ -70,8 +78,12 @@ export const HealthStats: React.FC<HealthStatsProps> = ({ refreshTrigger }) => {
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm font-medium text-gray-500">Rata-rata Suhu Tubuh</p>
-            <p className="text-2xl font-bold text-gray-900">{stats.avg_temperature}°C</p>
+            <p className="text-sm font-medium text-gray-500">
+              Rata-rata Suhu Tubuh
+            </p>
+            <p className="text-2xl font-bold text-gray-900">
+              {stats.avg_temperature}°C
+            </p>
           </div>
           <div className="p-3 bg-orange-100 rounded-lg">
             <Thermometer className="h-6 w-6 text-orange-600" />
@@ -83,8 +95,12 @@ export const HealthStats: React.FC<HealthStatsProps> = ({ refreshTrigger }) => {
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm font-medium text-gray-500">Checkup Bulan Ini</p>
-            <p className="text-2xl font-bold text-gray-900">{stats.total_this_month}</p>
+            <p className="text-sm font-medium text-gray-500">
+              Checkup Bulan Ini
+            </p>
+            <p className="text-2xl font-bold text-gray-900">
+              {stats.total_this_month}
+            </p>
           </div>
           <div className="p-3 bg-green-100 rounded-lg">
             <Scale className="h-6 w-6 text-green-600" />

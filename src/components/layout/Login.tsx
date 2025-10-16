@@ -1,11 +1,20 @@
 // Login.tsx
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Shield, User, Lock, Heart, Activity, Zap, Puzzle, Sparkles } from 'lucide-react';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  Shield,
+  User,
+  Lock,
+  Heart,
+  Activity,
+  Zap,
+  Puzzle,
+  Sparkles,
+} from "lucide-react";
 
 export const Login: React.FC = () => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [showLoading, setShowLoading] = useState(false);
   const navigate = useNavigate();
@@ -14,43 +23,46 @@ export const Login: React.FC = () => {
     e.preventDefault();
     setLoading(true);
     setShowLoading(true);
-    
+
     try {
-      const response = await fetch('http://localhost:4000/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ username, password }),
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_API_BASE}/api/auth/login`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ username, password }),
+        }
+      );
 
       const data = await response.json();
 
       if (data.success) {
         // Simpan data ke localStorage DULU
-        localStorage.setItem('isLoggedIn', 'true');
-        localStorage.setItem('user', JSON.stringify(data.user));
-        localStorage.setItem('token', data.token);
-        
+        localStorage.setItem("isLoggedIn", "true");
+        localStorage.setItem("user", JSON.stringify(data.user));
+        localStorage.setItem("token", data.token);
+
         // Tunggu 2 detik untuk loading animation
         setTimeout(() => {
           setShowLoading(false);
           setLoading(false);
-          
+
           // Navigate dan refresh SEKALIGUS
-          navigate('/', { replace: true });
+          navigate("/", { replace: true });
           window.location.reload(); // Langsung reload, tidak perlu setTimeout lagi
         }, 2000);
       } else {
         setShowLoading(false);
         setLoading(false);
-        alert(data.error || 'Login gagal');
+        alert(data.error || "Login gagal");
       }
     } catch (error) {
-      console.error('Login error:', error);
+      console.error("Login error:", error);
       setShowLoading(false);
       setLoading(false);
-      alert('Terjadi kesalahan saat login');
+      alert("Terjadi kesalahan saat login");
     }
   };
 
@@ -61,21 +73,25 @@ export const Login: React.FC = () => {
       <div className="absolute inset-0 overflow-hidden">
         {/* Animated Grid */}
         <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_48%,rgba(59,130,246,0.03)_50%,transparent_52%)] bg-[length:60px_60px] animate-grid-move"></div>
-        
+
         {/* Floating Particles */}
         {[...Array(20)].map((_, i) => (
           <div
             key={i}
             className={`absolute w-3 h-3 rounded-full animate-float-particle ${
-              i % 4 === 0 ? 'bg-blue-200' : 
-              i % 4 === 1 ? 'bg-slate-200' : 
-              i % 4 === 2 ? 'bg-amber-200' : 'bg-gray-200'
+              i % 4 === 0
+                ? "bg-blue-200"
+                : i % 4 === 1
+                ? "bg-slate-200"
+                : i % 4 === 2
+                ? "bg-amber-200"
+                : "bg-gray-200"
             }`}
             style={{
               left: `${Math.random() * 100}%`,
               top: `${Math.random() * 100}%`,
               animationDelay: `${Math.random() * 8}s`,
-              animationDuration: `${12 + Math.random() * 8}s`
+              animationDuration: `${12 + Math.random() * 8}s`,
             }}
           />
         ))}
@@ -86,35 +102,35 @@ export const Login: React.FC = () => {
         <div className="relative mb-20">
           {/* Connection Lines */}
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-1 bg-gradient-to-r from-transparent via-blue-400 to-transparent opacity-50 animate-pulse-connection"></div>
-          
+
           <div className="flex justify-center items-center space-x-16 mb-16">
             {/* Huruf K - Puzzle Pieces */}
             <div className="relative">
               {/* Glow Effect */}
               <div className="absolute inset-0 bg-blue-100 rounded-2xl blur-xl opacity-50 animate-pulse-slow"></div>
-              
+
               {/* Puzzle Container untuk K */}
               <div className="relative w-40 h-40">
                 {/* Background Outline */}
                 <div className="absolute inset-0 border-4 border-dashed border-blue-100 rounded-2xl animate-pulse-very-slow"></div>
-                
+
                 {/* Piece 1 - Top Left */}
                 <div className="absolute top-0 left-0 w-20 h-20 bg-gradient-to-br from-blue-500 to-blue-600 rounded-tl-2xl animate-puzzle-assemble-k1 shadow-lg border-2 border-blue-400"></div>
-                
+
                 {/* Piece 2 - Top Right */}
                 <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-bl from-blue-600 to-blue-700 rounded-tr-2xl animate-puzzle-assemble-k2 shadow-lg border-2 border-blue-500"></div>
-                
+
                 {/* Piece 3 - Middle Left */}
                 <div className="absolute top-10 left-0 w-16 h-20 bg-gradient-to-b from-blue-400 to-blue-500 rounded-bl-2xl animate-puzzle-assemble-k3 shadow-lg border-2 border-blue-300"></div>
-                
+
                 {/* Piece 4 - Bottom Right */}
                 <div className="absolute bottom-0 right-5 w-16 h-20 bg-gradient-to-t from-blue-700 to-blue-800 rounded-br-2xl animate-puzzle-assemble-k4 shadow-lg border-2 border-blue-600"></div>
-                
+
                 {/* Connection Points */}
                 <div className="absolute top-10 left-20 w-3 h-3 bg-amber-400 rounded-full animate-ping-slow shadow-lg"></div>
                 <div className="absolute bottom-10 right-5 w-3 h-3 bg-amber-400 rounded-full animate-ping-slow-delay shadow-lg"></div>
               </div>
-              
+
               {/* Animated K Text */}
               <div className="absolute inset-0 flex items-center justify-center">
                 <span className="text-5xl font-black text-white animate-bounce-slow z-20 drop-shadow-2xl">
@@ -131,28 +147,28 @@ export const Login: React.FC = () => {
             <div className="relative">
               {/* Glow Effect */}
               <div className="absolute inset-0 bg-slate-100 rounded-2xl blur-xl opacity-50 animate-pulse-slow-delay"></div>
-              
+
               {/* Puzzle Container untuk 3 */}
               <div className="relative w-40 h-40">
                 {/* Background Outline */}
                 <div className="absolute inset-0 border-4 border-dashed border-slate-100 rounded-2xl animate-pulse-very-slow"></div>
-                
+
                 {/* Piece 1 - Top Curve */}
                 <div className="absolute top-0 left-5 w-30 h-20 bg-gradient-to-b from-slate-600 to-slate-700 rounded-t-2xl animate-puzzle-assemble-31 shadow-lg border-2 border-slate-500"></div>
-                
+
                 {/* Piece 2 - Middle */}
                 <div className="absolute top-8 left-10 w-20 h-10 bg-gradient-to-r from-slate-500 to-slate-600 animate-puzzle-assemble-32 shadow-lg border-2 border-slate-400"></div>
-                
+
                 {/* Piece 3 - Bottom Curve */}
                 <div className="absolute bottom-0 left-5 w-30 h-20 bg-gradient-to-t from-slate-700 to-slate-800 rounded-b-2xl animate-puzzle-assemble-33 shadow-lg border-2 border-slate-600"></div>
-                
+
                 {/* Piece 4 - Inner Curve Top */}
                 <div className="absolute top-5 left-15 w-10 h-10 bg-gradient-to-br from-slate-400 to-slate-500 rounded-full animate-puzzle-assemble-34 shadow-lg border-2 border-slate-300"></div>
-                
+
                 {/* Piece 5 - Inner Curve Bottom */}
                 <div className="absolute bottom-5 left-15 w-10 h-10 bg-gradient-to-tr from-slate-800 to-slate-900 rounded-full animate-puzzle-assemble-35 shadow-lg border-2 border-slate-700"></div>
               </div>
-              
+
               {/* Animated 3 Text */}
               <div className="absolute inset-0 flex items-center justify-center">
                 <span className="text-5xl font-black text-white animate-bounce-slow-delay z-20 drop-shadow-2xl">
@@ -187,21 +203,24 @@ export const Login: React.FC = () => {
               KLOP
             </span>
           </h2>
-          
+
           {/* Puzzle Piece Underline */}
           <div className="flex justify-center space-x-2 mb-4">
             {[...Array(12)].map((_, i) => (
               <div
                 key={i}
                 className={`w-8 h-4 rounded-full animate-puzzle-underline-enhanced transform rotate-45 ${
-                  i % 3 === 0 ? 'bg-blue-500' : 
-                  i % 3 === 1 ? 'bg-slate-500' : 'bg-amber-500'
+                  i % 3 === 0
+                    ? "bg-blue-500"
+                    : i % 3 === 1
+                    ? "bg-slate-500"
+                    : "bg-amber-500"
                 }`}
                 style={{ animationDelay: `${i * 0.2}s` }}
               />
             ))}
           </div>
-          
+
           {/* Subtitle */}
           <p className="text-gray-600 text-lg font-medium animate-fade-in-delayed">
             WEBSITE MANAGEMENT K3 TEKNOKLOP
@@ -216,15 +235,18 @@ export const Login: React.FC = () => {
               <div
                 key={i}
                 className={`w-8 h-8 transform rotate-45 animate-puzzle-load-enhanced shadow-lg border-2 ${
-                  i % 4 === 0 ? 'bg-blue-500 border-blue-400' : 
-                  i % 4 === 1 ? 'bg-slate-500 border-slate-400' : 
-                  i % 4 === 2 ? 'bg-amber-500 border-amber-400' : 
-                  'bg-gray-500 border-gray-400'
+                  i % 4 === 0
+                    ? "bg-blue-500 border-blue-400"
+                    : i % 4 === 1
+                    ? "bg-slate-500 border-slate-400"
+                    : i % 4 === 2
+                    ? "bg-amber-500 border-amber-400"
+                    : "bg-gray-500 border-gray-400"
                 }`}
-                style={{ 
+                style={{
                   animationDelay: `${i * 0.4}s`,
-                  transformStyle: 'preserve-3d',
-                  transform: 'rotate(45deg) perspective(100px)'
+                  transformStyle: "preserve-3d",
+                  transform: "rotate(45deg) perspective(100px)",
                 }}
               />
             ))}
@@ -235,17 +257,17 @@ export const Login: React.FC = () => {
             <div className="h-full bg-gradient-to-r from-blue-500 via-slate-500 to-amber-500 rounded-full animate-progress-puzzle-enhanced relative">
               {/* Puzzle Notches */}
               {[...Array(5)].map((_, i) => (
-                <div 
+                <div
                   key={i}
                   className="absolute inset-y-0 w-2 bg-white opacity-60 transform skew-x-12"
                   style={{ left: `${(i + 1) * 20}%` }}
                 />
               ))}
-              
+
               {/* Moving Highlight */}
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent animate-shine"></div>
             </div>
-            
+
             {/* Progress Text */}
             <div className="absolute inset-0 flex items-center justify-center">
               <span className="text-xs font-bold text-gray-700 animate-pulse-slow">
@@ -259,7 +281,7 @@ export const Login: React.FC = () => {
             <div className="flex items-center justify-center space-x-3">
               <Puzzle className="h-7 w-7 text-blue-500 animate-bounce-rotate" />
               <span className="animate-typing overflow-hidden whitespace-nowrap border-r-4 border-blue-500">
-                MEMUAT SISTEM... 
+                MEMUAT SISTEM...
               </span>
               <Puzzle className="h-7 w-7 text-slate-500 animate-bounce-rotate-delay" />
             </div>
@@ -269,20 +291,29 @@ export const Login: React.FC = () => {
         {/* Safety Messages dengan Icons */}
         <div className="mt-16 grid grid-cols-4 gap-8 text-sm text-gray-600">
           {[
-            { icon: Shield, color: 'blue', text: 'Keamanan', delay: '0.8s' },
-            { icon: Heart, color: 'slate', text: 'Kesehatan', delay: '1.2s' },
-            { icon: Zap, color: 'amber', text: 'Efisiensi', delay: '1.6s' },
-            { icon: Activity, color: 'gray', text: 'Monitoring', delay: '2.0s' }
+            { icon: Shield, color: "blue", text: "Keamanan", delay: "0.8s" },
+            { icon: Heart, color: "slate", text: "Kesehatan", delay: "1.2s" },
+            { icon: Zap, color: "amber", text: "Efisiensi", delay: "1.6s" },
+            {
+              icon: Activity,
+              color: "gray",
+              text: "Monitoring",
+              delay: "2.0s",
+            },
           ].map((item, index) => (
-            <div 
+            <div
               key={index}
               className="flex flex-col items-center animate-fade-in-up"
               style={{ animationDelay: item.delay }}
             >
-              <div className={`w-12 h-12 bg-${item.color}-50 rounded-2xl flex items-center justify-center mb-3 shadow-lg border border-${item.color}-200 transform hover:scale-110 transition-transform duration-300`}>
+              <div
+                className={`w-12 h-12 bg-${item.color}-50 rounded-2xl flex items-center justify-center mb-3 shadow-lg border border-${item.color}-200 transform hover:scale-110 transition-transform duration-300`}
+              >
                 <item.icon className={`h-6 w-6 text-${item.color}-500`} />
               </div>
-              <p className="text-center whitespace-pre-line font-medium">{item.text}</p>
+              <p className="text-center whitespace-pre-line font-medium">
+                {item.text}
+              </p>
             </div>
           ))}
         </div>
@@ -293,7 +324,7 @@ export const Login: React.FC = () => {
   return (
     <>
       {showLoading && <LoadingAnimation />}
-      
+
       <div className="min-h-screen flex items-center justify-center bg-white">
         {/* Background Puzzle Decoration */}
         <div className="absolute inset-0 overflow-hidden opacity-5">
@@ -302,16 +333,19 @@ export const Login: React.FC = () => {
             <div
               key={i}
               className={`absolute w-20 h-20 transform rotate-45 opacity-20 animate-float-puzzle-enhanced border-2 ${
-                i % 4 === 0 ? 'bg-blue-100 border-blue-200' : 
-                i % 4 === 1 ? 'bg-slate-100 border-slate-200' : 
-                i % 4 === 2 ? 'bg-amber-100 border-amber-200' : 
-                'bg-gray-100 border-gray-200'
+                i % 4 === 0
+                  ? "bg-blue-100 border-blue-200"
+                  : i % 4 === 1
+                  ? "bg-slate-100 border-slate-200"
+                  : i % 4 === 2
+                  ? "bg-amber-100 border-amber-200"
+                  : "bg-gray-100 border-gray-200"
               }`}
               style={{
                 left: `${Math.random() * 100}%`,
                 top: `${Math.random() * 100}%`,
                 animationDelay: `${Math.random() * 15}s`,
-                animationDuration: `${20 + Math.random() * 15}s`
+                animationDuration: `${20 + Math.random() * 15}s`,
               }}
             />
           ))}
@@ -325,10 +359,10 @@ export const Login: React.FC = () => {
             <div className="absolute inset-0 opacity-10">
               <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_45%,rgba(255,255,255,0.4)_50%,transparent_55%)] bg-[length:50px_50px] animate-grid-move-slow"></div>
             </div>
-            
+
             {/* Animated Border */}
             <div className="absolute inset-0 border-4 border-transparent bg-gradient-to-r from-blue-400 via-slate-500 to-amber-400 rounded-3xl opacity-30 animate-border-rotate"></div>
-            
+
             <div className="relative">
               <div className="flex items-center justify-center mb-4">
                 <div className="relative">
@@ -412,7 +446,9 @@ export const Login: React.FC = () => {
                 {loading ? (
                   <div className="flex items-center justify-center">
                     <div className="animate-spin rounded-full h-7 w-7 border-b-2 border-white mr-3"></div>
-                    <span className="text-lg font-semibold">MASUK KE SISTEM...</span>
+                    <span className="text-lg font-semibold">
+                      MASUK KE SISTEM...
+                    </span>
                   </div>
                 ) : (
                   <>

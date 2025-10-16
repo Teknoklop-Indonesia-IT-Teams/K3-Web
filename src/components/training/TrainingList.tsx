@@ -36,7 +36,7 @@ const TrainingList: React.FC<TrainingListProps> = ({ refreshTrigger }) => {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch("http://localhost:4000/api/trainings");
+      const res = await fetch(`${import.meta.env.VITE_API_BASE}/api/trainings`);
       if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
       const data: Training[] = await res.json();
       // urutkan terbaru berdasarkan start_time
@@ -65,7 +65,9 @@ const TrainingList: React.FC<TrainingListProps> = ({ refreshTrigger }) => {
       formData.append("documentation", file);
 
       await fetch(
-        `http://localhost:4000/api/trainings/${selectedTraining.id}/documentation`,
+        `${import.meta.env.VITE_API_BASE}/api/trainings/${
+          selectedTraining.id
+        }/documentation`,
         {
           method: "PUT",
           body: formData,
@@ -154,7 +156,9 @@ const TrainingList: React.FC<TrainingListProps> = ({ refreshTrigger }) => {
               <div className="mt-3">
                 {t.documentation_url ? (
                   <img
-                    src={`http://localhost:4000${t.documentation_url}`}
+                    src={`${import.meta.env.VITE_API_BASE}${
+                      t.documentation_url
+                    }`}
                     alt="Dokumentasi Pelatihan"
                     className="rounded-lg border max-h-48 object-cover"
                   />
@@ -228,9 +232,7 @@ const TrainingList: React.FC<TrainingListProps> = ({ refreshTrigger }) => {
             />
 
             {uploading && (
-              <div className="text-sm text-gray-500 mt-2">
-                ⏳ Uploading...
-              </div>
+              <div className="text-sm text-gray-500 mt-2">⏳ Uploading...</div>
             )}
           </div>
         </div>

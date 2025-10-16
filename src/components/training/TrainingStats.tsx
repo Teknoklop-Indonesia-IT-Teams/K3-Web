@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { BookOpen, Layers, Clock, Users } from 'lucide-react';
+import React, { useEffect, useState } from "react";
+import { BookOpen, Layers, Clock, Users } from "lucide-react";
 
 interface Training {
   id: string;
@@ -13,7 +13,9 @@ interface TrainingStatsProps {
   refreshTrigger: number;
 }
 
-export const TrainingStats: React.FC<TrainingStatsProps> = ({ refreshTrigger }) => {
+export const TrainingStats: React.FC<TrainingStatsProps> = ({
+  refreshTrigger,
+}) => {
   const [trainings, setTrainings] = useState<Training[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -22,12 +24,12 @@ export const TrainingStats: React.FC<TrainingStatsProps> = ({ refreshTrigger }) 
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch('http://localhost:4000/api/trainings');
+      const res = await fetch(`${import.meta.env.VITE_API_BASE}/api/trainings`);
       if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
       const data: Training[] = await res.json();
       setTrainings(data);
     } catch (err: any) {
-      setError(err.message || 'Error');
+      setError(err.message || "Error");
     } finally {
       setLoading(false);
     }
@@ -49,7 +51,10 @@ export const TrainingStats: React.FC<TrainingStatsProps> = ({ refreshTrigger }) 
 
   const countTrainings = trainingsThisMonth.length;
   const uniqueTitles = new Set(trainingsThisMonth.map((t) => t.title)).size;
-  const totalHours = trainingsThisMonth.reduce((sum, t) => sum + Number(t.duration_hours), 0);
+  const totalHours = trainingsThisMonth.reduce(
+    (sum, t) => sum + Number(t.duration_hours),
+    0
+  );
   const totalParticipants = 22; // sementara dummy
 
   if (loading) return <div>⏳ Memuat statistik...</div>;
@@ -61,7 +66,9 @@ export const TrainingStats: React.FC<TrainingStatsProps> = ({ refreshTrigger }) 
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm font-medium text-gray-500">Pelatihan Bulan Ini</p>
+            <p className="text-sm font-medium text-gray-500">
+              Pelatihan Bulan Ini
+            </p>
             <p className="text-2xl font-bold text-gray-900">{countTrainings}</p>
             <p className="text-sm text-blue-600">Jumlah jadwal</p>
           </div>
@@ -75,7 +82,9 @@ export const TrainingStats: React.FC<TrainingStatsProps> = ({ refreshTrigger }) 
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm font-medium text-gray-500">Materi Disampaikan</p>
+            <p className="text-sm font-medium text-gray-500">
+              Materi Disampaikan
+            </p>
             <p className="text-2xl font-bold text-gray-900">{uniqueTitles}</p>
             <p className="text-sm text-green-600">Topik bulan ini</p>
           </div>
@@ -89,7 +98,9 @@ export const TrainingStats: React.FC<TrainingStatsProps> = ({ refreshTrigger }) 
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm font-medium text-gray-500">Total Jam Pelatihan</p>
+            <p className="text-sm font-medium text-gray-500">
+              Total Jam Pelatihan
+            </p>
             <p className="text-2xl font-bold text-gray-900">{totalHours}</p>
             <p className="text-sm text-purple-600">Jam bulan ini</p>
           </div>
@@ -104,7 +115,9 @@ export const TrainingStats: React.FC<TrainingStatsProps> = ({ refreshTrigger }) 
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm font-medium text-gray-500">Jumlah Peserta</p>
-            <p className="text-2xl font-bold text-gray-900">{totalParticipants}</p>
+            <p className="text-2xl font-bold text-gray-900">
+              {totalParticipants}
+            </p>
             <p className="text-sm text-orange-600">Seluruh karyawan</p>
           </div>
           <div className="p-3 bg-orange-100 rounded-lg">

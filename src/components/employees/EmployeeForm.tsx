@@ -1,6 +1,6 @@
-import React from 'react';
-import { useForm } from 'react-hook-form';
-import { User } from 'lucide-react';
+import React from "react";
+import { useForm } from "react-hook-form";
+import { User } from "lucide-react";
 
 interface EmployeeFormData {
   name: string;
@@ -12,15 +12,23 @@ interface EmployeeFormProps {
 }
 
 export const EmployeeForm: React.FC<EmployeeFormProps> = ({ onSubmit }) => {
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<EmployeeFormData>();
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<EmployeeFormData>();
 
   const onFormSubmit = async (data: EmployeeFormData) => {
     try {
-      const res = await fetch("http://localhost:4000/api/employees", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
+      const res = await fetch(
+        `${import.meta.env.VITE_API_BASE}/api/employees`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        }
+      );
 
       if (!res.ok) throw new Error("Gagal menambahkan karyawan");
 
@@ -42,28 +50,41 @@ export const EmployeeForm: React.FC<EmployeeFormProps> = ({ onSubmit }) => {
 
       <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-6">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Nama Lengkap</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Nama Lengkap
+          </label>
           <input
-            {...register('name', { required: 'Nama lengkap diperlukan' })}
+            {...register("name", { required: "Nama lengkap diperlukan" })}
             placeholder="Ahmad Susanto"
             className="w-full rounded-lg border-gray-300 border px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
-          {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>}
+          {errors.name && (
+            <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>
+          )}
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Departemen</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Departemen
+          </label>
           <select
-            {...register('department', { required: 'Pilih departemen' })}
+            {...register("department", { required: "Pilih departemen" })}
             className="w-full rounded-lg border-gray-300 border px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
             <option value="">Pilih Departemen</option>
-            <option value="lab">LAB</option>
-            <option value="otomasi">Otomasi</option>
-            <option value="it">IT</option>
-            <option value="admin">Administration</option>
+            <option value="Direktur">Direktur</option>
+            <option value="Lab">Laboratorium</option>
+            <option value="Automasi">Automation</option>
+            <option value="RND">Research and Development (RND)</option>
+            <option value="IT">IT</option>
+            <option value="Admin">Finance</option>
+            <option value="Cook">Cook</option>
           </select>
-          {errors.department && <p className="text-red-500 text-sm mt-1">{errors.department.message}</p>}
+          {errors.department && (
+            <p className="text-red-500 text-sm mt-1">
+              {errors.department.message}
+            </p>
+          )}
         </div>
 
         <button

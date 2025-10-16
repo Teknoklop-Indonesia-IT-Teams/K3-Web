@@ -1,26 +1,30 @@
-import React, { useEffect, useState } from 'react';
-import { Shield, AlertTriangle, CheckCircle, Clock } from 'lucide-react';
+import React, { useEffect, useState } from "react";
+import { Shield, AlertTriangle, CheckCircle, Clock } from "lucide-react";
 
 interface SafetyMetricsCardProps {
   refreshTrigger: number;
 }
 
-export const SafetyMetricsCard: React.FC<SafetyMetricsCardProps> = ({ refreshTrigger }) => {
+export const SafetyMetricsCard: React.FC<SafetyMetricsCardProps> = ({
+  refreshTrigger,
+}) => {
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let mounted = true;
     setLoading(true);
-    fetch('http://localhost:4000/api/safety/reports/stats')
-      .then(res => res.json())
-      .then(data => {
+    fetch(`${import.meta.env.VITE_API_BASE}/api/safety/reports/stats`)
+      .then((res) => res.json())
+      .then((data) => {
         if (mounted) setStats(data);
       })
       .catch(console.error)
       .finally(() => mounted && setLoading(false));
 
-    return () => { mounted = false; };
+    return () => {
+      mounted = false;
+    };
   }, [refreshTrigger]);
 
   if (loading) {
@@ -44,7 +48,9 @@ export const SafetyMetricsCard: React.FC<SafetyMetricsCardProps> = ({ refreshTri
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm font-medium text-gray-500">Total Laporan Bulan Ini</p>
+            <p className="text-sm font-medium text-gray-500">
+              Total Laporan Bulan Ini
+            </p>
             <p className="text-2xl font-bold text-gray-900">{total}</p>
           </div>
           <div className="p-3 bg-red-100 rounded-lg">
@@ -57,9 +63,13 @@ export const SafetyMetricsCard: React.FC<SafetyMetricsCardProps> = ({ refreshTri
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm font-medium text-gray-500">Laporan Diselesaikan</p>
+            <p className="text-sm font-medium text-gray-500">
+              Laporan Diselesaikan
+            </p>
             <p className="text-2xl font-bold text-gray-900">{selesai}</p>
-            <p className="text-sm text-green-600">{completionRate}% completion rate</p>
+            <p className="text-sm text-green-600">
+              {completionRate}% completion rate
+            </p>
           </div>
           <div className="p-3 bg-green-100 rounded-lg">
             <CheckCircle className="h-6 w-6 text-green-600" />
@@ -71,7 +81,9 @@ export const SafetyMetricsCard: React.FC<SafetyMetricsCardProps> = ({ refreshTri
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm font-medium text-gray-500">Sedang Investigasi</p>
+            <p className="text-sm font-medium text-gray-500">
+              Sedang Investigasi
+            </p>
             <p className="text-2xl font-bold text-gray-900">{investigasi}</p>
             <p className="text-sm text-blue-600">Dalam proses</p>
           </div>
@@ -85,7 +97,9 @@ export const SafetyMetricsCard: React.FC<SafetyMetricsCardProps> = ({ refreshTri
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm font-medium text-gray-500">Laporan Tertunda</p>
+            <p className="text-sm font-medium text-gray-500">
+              Laporan Tertunda
+            </p>
             <p className="text-2xl font-bold text-gray-900">{pending}</p>
             <p className="text-sm text-purple-600">Belum ditindaklanjuti</p>
           </div>
