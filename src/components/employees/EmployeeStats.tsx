@@ -8,7 +8,6 @@ import {
   Search,
   PersonStanding,
   ChefHat,
-  Loader2,
 } from "lucide-react";
 
 interface EmployeeStatsProps {
@@ -110,7 +109,7 @@ export const EmployeeStats: React.FC<EmployeeStatsProps> = ({
             headers: {
               "Content-Type": "application/json",
             },
-          }
+          },
         );
 
         if (!res.ok) {
@@ -123,7 +122,7 @@ export const EmployeeStats: React.FC<EmployeeStatsProps> = ({
       } catch (err) {
         console.error("Error fetching employee stats:", err);
         setError(
-          err instanceof Error ? err.message : "Failed to load statistics"
+          err instanceof Error ? err.message : "Failed to load statistics",
         );
       } finally {
         setLoading(false);
