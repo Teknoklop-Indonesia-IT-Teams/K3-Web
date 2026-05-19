@@ -1,4 +1,3 @@
-// server.js (FINAL REVISI DENGAN PERBAIKAN)
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
@@ -19,8 +18,10 @@ const makePool = () =>
     user: process.env.PG_USER || "postgres",
     password:
       process.env.PG_PASSWORD ||
-      (process.env.NODE_ENV === "production" ? undefined : "12345678"),
-    database: process.env.DB_K3 || "k3",
+      //   (process.env.NODE_ENV === "production" ? undefined : "12345678"),
+      // database: process.env.DB_K3 || "k3",
+      (process.env.NODE_ENV === "production" ? undefined : "Teknoklop_123456"),
+    database: process.env.DB_K3 || "teknoklo_k3",
     max: 10,
   });
 
@@ -33,6 +34,7 @@ const pools = {
   health: pool,
   safety: pool,
   dashboard: pool,
+  users: pool,
 };
 
 // ====== UPLOAD (multer) CONFIG ======
@@ -47,7 +49,7 @@ const storage = multer.diskStorage({
     const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
     cb(
       null,
-      `doc-${uniqueSuffix}${path.extname(file.originalname).toLowerCase()}`
+      `doc-${uniqueSuffix}${path.extname(file.originalname).toLowerCase()}`,
     );
   },
 });
@@ -60,14 +62,17 @@ const fileFilter = (req, file, cb) => {
     "image/webp",
     "image/heic",
     "image/heif",
+    "application/pdf", // 🔥 TAMBAHKAN PDF
+    "application/msword",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
   ];
   if (allowed.includes((file.mimetype || "").toLowerCase())) {
     cb(null, true);
   } else {
     cb(
       new Error(
-        "Format file tidak didukung. Gunakan JPG, PNG, WEBP, HEIC/HEIF."
-      )
+        "Format file tidak didukung. Gunakan JPG, PNG, WEBP, HEIC/HEIF, PDF, atau DOC/DOCX.",
+      ),
     );
   }
 };
@@ -95,7 +100,7 @@ app.post("/api/auth/login", async (req, res) => {
     // 🔍 Cek user di database
     const result = await pool.query(
       "SELECT username, password, role, name FROM users WHERE username = $1",
-      [username]
+      [username],
     );
 
     if (result.rows.length === 0) {
@@ -165,14 +170,14 @@ app.get("/api/auth/check", async (req, res) => {
               username === "admin"
                 ? "admin"
                 : username === "safety"
-                ? "safety_officer"
-                : "hrd",
+                  ? "safety_officer"
+                  : "hrd",
             name:
               username === "admin"
                 ? "Administrator"
                 : username === "safety"
-                ? "Safety Officer"
-                : "HRD Officer",
+                  ? "Safety Officer"
+                  : "HRD Officer",
           },
         });
       }
@@ -339,7 +344,7 @@ app.get("/api/attendance/:trainingId/participants", async (req, res) => {
       WHERE training_id = $1
       ORDER BY timestamp ASC
     `,
-      [trainingId]
+      [trainingId],
     );
     res.json(rows);
   } catch (err) {
@@ -453,7 +458,7 @@ app.get("/api/health/stats", async (req, res) => {
 app.get("/api/employees", async (req, res) => {
   try {
     const { rows } = await pools.employees.query(
-      "SELECT * FROM employees ORDER BY created_at ASC LIMIT 500"
+      "SELECT * FROM employees ORDER BY created_at ASC LIMIT 500",
     );
     res.json(rows);
   } catch (err) {
@@ -550,7 +555,7 @@ app.get("/api/employees/:employeeName/training-history", async (req, res) => {
   } catch (err) {
     console.error(
       "GET /api/employees/:employeeName/training-history error:",
-      err
+      err,
     );
     res.status(500).json({ error: err.message });
   }
@@ -708,6 +713,24 @@ app.put("/api/safety/reports/:id/status", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+// Delete reports
+app.delete("/api/safety/reports/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const q = `DELETE FROM incidents WHERE id = $1 RETURNING *`;
+    const { rows } = await pools.safety.query(q, [id]);
+
+    if (rows.length === 0) {
+      return res.status(404).json({ error: "Incidents not found" });
+    }
+
+    res.json({ message: "Incidents deleted successfully", deleted: rows[0] });
+  } catch (err) {
+    console.error("DELETE /api/safety/reports/:id error:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
 
 // GET stats
 app.get("/api/safety/reports/stats", async (req, res) => {
@@ -824,7 +847,7 @@ app.put(
       console.error("PUT /api/trainings/:id/documentation error:", err);
       res.status(500).json({ error: err.message });
     }
-  }
+  },
 );
 
 // ==========================================================
@@ -848,7 +871,7 @@ app.get("/api/activity/recent", async (req, res) => {
           a.type === "clock_in" ? "clock-in" : "clock-out"
         }`,
         time: a.timestamp,
-      }))
+      })),
     );
 
     const employees = await pools.employees.query(`
@@ -863,7 +886,7 @@ app.get("/api/activity/recent", async (req, res) => {
         type: "employee",
         message: `Karyawan baru ditambahkan - ${e.name}`,
         time: e.created_at,
-      }))
+      })),
     );
 
     const health = await pools.health.query(`
@@ -878,7 +901,7 @@ app.get("/api/activity/recent", async (req, res) => {
         type: "health",
         message: `Pemeriksaan kesehatan - ${h.employee_name}`,
         time: h.measured_at,
-      }))
+      })),
     );
 
     const safety = await pools.safety.query(`
@@ -895,7 +918,7 @@ app.get("/api/activity/recent", async (req, res) => {
           s.title || s.description || "Tanpa judul"
         }`,
         time: s.reported_at,
-      }))
+      })),
     );
 
     const trainings = await pools.training.query(`
@@ -910,7 +933,7 @@ app.get("/api/activity/recent", async (req, res) => {
         type: "training",
         message: `Pelatihan baru dijadwalkan: ${t.title}`,
         time: t.start_time,
-      }))
+      })),
     );
 
     activities.sort((a, b) => new Date(b.time) - new Date(a.time));
@@ -932,5 +955,5 @@ app.use("/template.png", express.static(path.join(publicDir, "template.png")));
 // ====== START SERVER ======
 const port = Number(process.env.PORT || 4000);
 app.listen(port, () =>
-  console.log("✅ Backend running on http://localhost:" + port)
+  console.log("✅ Backend running on http://localhost:" + port),
 );

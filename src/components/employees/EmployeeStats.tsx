@@ -20,6 +20,7 @@ interface StatsResponse {
   stats: { department: string; count: number }[];
 }
 
+// 🔥 PERBAIKAN: Gunakan value yang sama dengan form
 const deptConfig: Record<
   string,
   {
@@ -31,7 +32,8 @@ const deptConfig: Record<
     name: string;
   }
 > = {
-  direktur: {
+  // 🔥 GUNAKAN VALUE YANG SAMA DENGAN FORM (case-sensitive)
+  Direktur: {
     id: 1,
     icon: PersonStanding,
     bg: "bg-red-50",
@@ -39,7 +41,7 @@ const deptConfig: Record<
     border: "border-red-200",
     name: "Direktur",
   },
-  lab: {
+  Lab: {
     id: 2,
     icon: Microscope,
     bg: "bg-purple-50",
@@ -47,7 +49,7 @@ const deptConfig: Record<
     border: "border-purple-200",
     name: "Laboratorium",
   },
-  automasi: {
+  Automasi: {
     id: 3,
     icon: Cpu,
     bg: "bg-blue-50",
@@ -55,7 +57,7 @@ const deptConfig: Record<
     border: "border-blue-200",
     name: "Automasi",
   },
-  it: {
+  IT: {
     id: 4,
     icon: Monitor,
     bg: "bg-green-50",
@@ -63,15 +65,15 @@ const deptConfig: Record<
     border: "border-green-200",
     name: "IT",
   },
-  admin: {
+  Admin: {
     id: 5,
     icon: FileText,
     bg: "bg-yellow-50",
     text: "text-yellow-700",
     border: "border-yellow-200",
-    name: "Administrasi",
+    name: "Finance", // 🔥 SESUAIKAN DENGAN LABEL DI FORM
   },
-  rnd: {
+  RND: {
     id: 6,
     icon: Search,
     bg: "bg-orange-50",
@@ -79,7 +81,7 @@ const deptConfig: Record<
     border: "border-orange-200",
     name: "Research & Development",
   },
-  cook: {
+  Cook: {
     id: 7,
     icon: ChefHat,
     bg: "bg-gray-50",
@@ -116,6 +118,7 @@ export const EmployeeStats: React.FC<EmployeeStatsProps> = ({
         }
 
         const json = await res.json();
+        console.log("📊 Employee stats data:", json); // 🔥 DEBUG: Lihat data dari backend
         setData(json);
       } catch (err) {
         console.error("Error fetching employee stats:", err);
@@ -195,18 +198,23 @@ export const EmployeeStats: React.FC<EmployeeStatsProps> = ({
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-6">
-      {data.stats.map((stat, index) => {
-        const normalizedDept = stat.department.toLowerCase();
-        const config = deptConfig[normalizedDept] || {
+      {data.stats.map((stat) => {
+        // 🔥 PERBAIKAN: Gunakan langsung department dari data, jangan di lowercase
+        const departmentKey = stat.department;
+        const config = deptConfig[departmentKey] || {
           id: 0,
           icon: Users,
           bg: "bg-gray-50",
           text: "text-gray-700",
           border: "border-gray-200",
-          name: stat.department,
+          name: stat.department, // 🔥 Tampilkan department asli dari data
         };
+
         const Icon = config.icon;
         const percentage = data.total > 0 ? (stat.count / data.total) * 100 : 0;
+
+        // 🔥 DEBUG: Log untuk memastikan mapping benar
+        console.log(`Department: ${stat.department}, Config:`, config);
 
         return (
           <div

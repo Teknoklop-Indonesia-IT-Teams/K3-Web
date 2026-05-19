@@ -23,6 +23,18 @@ const isAuthenticated = () => {
   }
 };
 
+// 🔥 PERBAIKAN: Main Layout Component
+const MainLayout = ({ children }: { children: React.ReactNode }) => {
+  return (
+    <div className="flex">
+      <Navbar />
+      <main className="flex-1 min-h-screen lg:ml-16 transition-all duration-300">
+        <div className="p-4 lg:pr-14 lg:pb-4 sm:pt-6 lg:pt-8">{children}</div>
+      </main>
+    </div>
+  );
+};
+
 function App() {
   return (
     <Router>
@@ -36,86 +48,83 @@ function App() {
             }
           />
 
-          {/* Main Routes - With Navbar */}
+          {/* 🔥 PERBAIKAN: Protected Routes dengan layout yang benar */}
           <Route
-            path="/*"
+            path="/"
             element={
-              <div className="flex">
-                <Navbar />
-                <main className="flex-1 min-h-screen lg:ml-16 transition-all duration-300">
-                  <div className="">
-                    <Routes>
-                      {/* Public Route - Always accessible */}
-                      <Route path="/attendance" element={<Attendance />} />
-
-                      {/* Protected Routes - Require login */}
-                      <Route
-                        path="/"
-                        element={
-                          isAuthenticated() ? (
-                            <Dashboard />
-                          ) : (
-                            <Navigate to="/attendance" replace />
-                          )
-                        }
-                      />
-                      <Route
-                        path="/health"
-                        element={
-                          isAuthenticated() ? (
-                            <HealthMonitoring />
-                          ) : (
-                            <Navigate to="/attendance" replace />
-                          )
-                        }
-                      />
-                      <Route
-                        path="/safety-reports"
-                        element={
-                          isAuthenticated() ? (
-                            <SafetyReports />
-                          ) : (
-                            <Navigate to="/attendance" replace />
-                          )
-                        }
-                      />
-                      <Route
-                        path="/employees"
-                        element={
-                          isAuthenticated() ? (
-                            <EmployeeManagement />
-                          ) : (
-                            <Navigate to="/attendance" replace />
-                          )
-                        }
-                      />
-                      <Route
-                        path="/training"
-                        element={
-                          isAuthenticated() ? (
-                            <Training />
-                          ) : (
-                            <Navigate to="/attendance" replace />
-                          )
-                        }
-                      />
-
-                      {/* Fallback Route */}
-                      <Route
-                        path="*"
-                        element={
-                          <Navigate
-                            to={isAuthenticated() ? "/" : "/attendance"}
-                            replace
-                          />
-                        }
-                      />
-                    </Routes>
-                  </div>
-                </main>
-              </div>
+              isAuthenticated() ? (
+                <MainLayout>
+                  <Dashboard />
+                </MainLayout>
+              ) : (
+                <Navigate to="/attendance" replace />
+              )
             }
           />
+
+          <Route
+            path="/attendance"
+            element={
+              <MainLayout>
+                <Attendance />
+              </MainLayout>
+            }
+          />
+
+          <Route
+            path="/health"
+            element={
+              isAuthenticated() ? (
+                <MainLayout>
+                  <HealthMonitoring />
+                </MainLayout>
+              ) : (
+                <Navigate to="/attendance" replace />
+              )
+            }
+          />
+
+          <Route
+            path="/safety-reports"
+            element={
+              isAuthenticated() ? (
+                <MainLayout>
+                  <SafetyReports />
+                </MainLayout>
+              ) : (
+                <Navigate to="/attendance" replace />
+              )
+            }
+          />
+
+          <Route
+            path="/employees"
+            element={
+              isAuthenticated() ? (
+                <MainLayout>
+                  <EmployeeManagement />
+                </MainLayout>
+              ) : (
+                <Navigate to="/attendance" replace />
+              )
+            }
+          />
+
+          <Route
+            path="/training"
+            element={
+              isAuthenticated() ? (
+                <MainLayout>
+                  <Training />
+                </MainLayout>
+              ) : (
+                <Navigate to="/attendance" replace />
+              )
+            }
+          />
+
+          {/* 🔥 PERBAIKAN: Fallback Route */}
+          <Route path="*" element={<Navigate to="/attendance" replace />} />
         </Routes>
       </div>
     </Router>
