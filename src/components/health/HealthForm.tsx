@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import { SignatureCapture } from "../shared/SignatureCapture";
 import { Search, User, ChevronDown, ChevronUp } from "lucide-react";
 import { Employee } from "../../types";
+import Swal from "sweetalert2";
 
 export const HealthForm: React.FC<{ onSuccess?: () => void }> = ({
   onSuccess,
@@ -115,7 +116,13 @@ export const HealthForm: React.FC<{ onSuccess?: () => void }> = ({
       );
 
       if (!res.ok) throw new Error("Gagal simpan data");
-
+      Swal.fire({
+        icon: "success",
+        title: "Berhasil",
+        text: "Data kesehatan berhasil disimpan",
+        timer: 2000,
+        showConfirmButton: false,
+      });
       // Reset form dan tanda tangan
       setForm({
         employee_name: "",
@@ -136,7 +143,12 @@ export const HealthForm: React.FC<{ onSuccess?: () => void }> = ({
       if (onSuccess) onSuccess();
     } catch (err) {
       console.error(err);
-      alert("Gagal menyimpan data kesehatan");
+      Swal.fire({
+        icon: "error",
+        title: "Gagal",
+        text: "Gagal menyimpan data kesehatan",
+        confirmButtonColor: "#dc2626",
+      });
     } finally {
       setLoading(false);
     }

@@ -18,6 +18,7 @@ import {
   Employee,
   Training,
 } from "../../types";
+import Swal from "sweetalert2";
 
 export const AttendanceForm: React.FC<AttendanceFormProps> = ({
   onSubmitSuccess,
@@ -130,16 +131,51 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
 
   const onFormSubmit = async (data: AttendanceRecord) => {
     if (!signatureData) {
-      alert("Tanda tangan diperlukan");
+      Swal.fire({
+        icon: "warning",
+        title: "Tanda tangan diperlukan",
+        text: "Silakan tambahkan tanda tangan digital terlebih dahulu.",
+      });
       return;
     }
 
+    const result = await Swal.fire({
+      title: "Submit Absensi?",
+      text: "Pastikan data absensi sudah benar",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Ya, Submit",
+      cancelButtonText: "Batal",
+      confirmButtonColor: "#2563eb",
+    });
+
+    if (!result.isConfirmed) return;
+
     try {
-      await fetch(`${import.meta.env.VITE_API_BASE}/api/training-attendance`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...data, signature: signatureData }),
+      const res = await fetch(
+        `${import.meta.env.VITE_API_BASE}/api/training-attendance`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            ...data,
+            signature: signatureData,
+          }),
+        },
+      );
+
+      if (!res.ok) {
+        throw new Error("Submit absensi gagal");
+      }
+
+      await Swal.fire({
+        icon: "success",
+        title: "Berhasil",
+        text: "Absensi pelatihan berhasil disimpan",
+        timer: 2000,
+        showConfirmButton: false,
       });
+
       reset();
       setSignatureData("");
       setSearchTerm("");
@@ -147,10 +183,16 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
       setIsEmployeeDropdownOpen(false);
       setIsTrainingDropdownOpen(false);
       setSelectedTraining(null);
+
       onSubmitSuccess();
     } catch (err) {
       console.error(err);
-      alert("Submit absensi gagal");
+
+      Swal.fire({
+        icon: "error",
+        title: "Gagal",
+        text: "Submit absensi gagal",
+      });
     }
   };
 

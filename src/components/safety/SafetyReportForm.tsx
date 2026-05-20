@@ -9,6 +9,7 @@ import {
   Users,
 } from "lucide-react";
 import { Employee, SafetyReportFormData } from "../../types";
+import Swal from "sweetalert2";
 
 interface SafetyReportFormProps {
   onSubmit: () => void;
@@ -118,8 +119,18 @@ export const SafetyReportForm: React.FC<SafetyReportFormProps> = ({
       const saved = await res.json();
       console.log("✅ Laporan tersimpan:", saved);
 
+      // Sweet Alert Success
+      await Swal.fire({
+        icon: "success",
+        title: "Berhasil!",
+        text: "Laporan insiden berhasil disimpan.",
+        confirmButtonColor: "#dc2626",
+        timer: 2000,
+        showConfirmButton: false,
+      });
+
       reset({
-        incident_type: "", // Reset ke default value yang baru
+        incident_type: "",
         status: "pending",
         severity: "medium",
         title: "",
@@ -131,12 +142,22 @@ export const SafetyReportForm: React.FC<SafetyReportFormProps> = ({
         witnesses: "",
         immediate_action: "",
       });
+
       setEmployeeSearch("");
       setShowEmployeeDropdown(false);
+
       onSubmit();
-    } catch (err) {
+    } catch (err: any) {
       console.error("❌ Gagal simpan laporan:", err);
-      alert("Gagal menyimpan laporan insiden");
+
+      // Sweet Alert Error
+      Swal.fire({
+        icon: "error",
+        title: "Gagal Menyimpan",
+        text:
+          err.message || "Terjadi kesalahan saat menyimpan laporan insiden.",
+        confirmButtonColor: "#dc2626",
+      });
     }
   };
 

@@ -12,6 +12,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
+import Swal from "sweetalert2";
 import { Employee, EmployeeListProps, TrainingHistory } from "../../types";
 
 export const EmployeeList: React.FC<EmployeeListProps> = ({
@@ -135,37 +136,71 @@ export const EmployeeList: React.FC<EmployeeListProps> = ({
         },
       );
 
-      if (res.ok) {
-        setEmployees(
-          employees.map((emp) =>
-            emp.id === id
-              ? { ...emp, name: editForm.name, department: editForm.department }
-              : emp,
-          ),
-        );
-        setEditingId(null);
-        if (detailEmployee?.id === id) {
-          setDetailEmployee({
-            ...detailEmployee,
-            name: editForm.name,
-            department: editForm.department,
-            email: editForm.email,
-            phone: editForm.phone,
-            blood_type: editForm.blood_type,
-            status: editForm.status,
-          });
-        }
+      if (!res.ok) {
+        throw new Error("Gagal update");
       }
+
+      setEmployees(
+        employees.map((emp) =>
+          emp.id === id
+            ? {
+                ...emp,
+                name: editForm.name,
+                department: editForm.department,
+                blood_type: editForm.blood_type,
+                email: editForm.email,
+                phone: editForm.phone,
+                status: editForm.status,
+              }
+            : emp,
+        ),
+      );
+
+      setEditingId(null);
+
+      if (detailEmployee?.id === id) {
+        setDetailEmployee({
+          ...detailEmployee,
+          name: editForm.name,
+          department: editForm.department,
+          email: editForm.email,
+          phone: editForm.phone,
+          blood_type: editForm.blood_type,
+          status: editForm.status,
+        });
+      }
+
+      Swal.fire({
+        icon: "success",
+        title: "Berhasil!",
+        text: "Data karyawan berhasil diperbarui",
+        timer: 2000,
+        showConfirmButton: false,
+      });
     } catch (error) {
       console.error("Error updating employee:", error);
-      alert("Gagal mengupdate karyawan");
+
+      Swal.fire({
+        icon: "error",
+        title: "Gagal!",
+        text: "Terjadi kesalahan saat update data",
+      });
     }
   };
 
   const handleDelete = async (id: number, name: string) => {
-    if (!confirm(`Apakah Anda yakin ingin menghapus karyawan ${name}?`)) {
-      return;
-    }
+    const result = await Swal.fire({
+      title: "Yakin hapus?",
+      text: `Karyawan ${name} akan dihapus`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#dc2626",
+      cancelButtonColor: "#6b7280",
+      confirmButtonText: "Ya, hapus",
+      cancelButtonText: "Batal",
+    });
+
+    if (!result.isConfirmed) return;
 
     try {
       const res = await fetch(
@@ -175,15 +210,31 @@ export const EmployeeList: React.FC<EmployeeListProps> = ({
         },
       );
 
-      if (res.ok) {
-        setEmployees(employees.filter((emp) => emp.id !== id));
-        if (detailEmployee?.id === id) {
-          setDetailEmployee(null);
-        }
+      if (!res.ok) {
+        throw new Error("Gagal delete");
       }
+
+      setEmployees(employees.filter((emp) => emp.id !== id));
+
+      if (detailEmployee?.id === id) {
+        setDetailEmployee(null);
+      }
+
+      Swal.fire({
+        icon: "success",
+        title: "Berhasil!",
+        text: "Karyawan berhasil dihapus",
+        timer: 2000,
+        showConfirmButton: false,
+      });
     } catch (error) {
       console.error("Error deleting employee:", error);
-      alert("Gagal menghapus karyawan");
+
+      Swal.fire({
+        icon: "error",
+        title: "Gagal!",
+        text: "Terjadi kesalahan saat menghapus karyawan",
+      });
     }
   };
 

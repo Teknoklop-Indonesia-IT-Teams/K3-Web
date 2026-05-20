@@ -2,6 +2,7 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import { BookOpen, Calendar, Image as ImageIcon } from "lucide-react";
 import { TrainingFormData } from "../../types";
+import Swal from "sweetalert2";
 
 // ================= Utility import.meta.env.VITE_API_BASE =================
 export async function fetchFormData<T = any>(
@@ -30,12 +31,14 @@ export const TrainingForm: React.FC<TrainingFormProps> = ({ onSubmit }) => {
   const onFormSubmit = async (data: TrainingFormData) => {
     try {
       const formData = new FormData();
+
       formData.append("title", data.title);
       formData.append("trainer", data.trainer);
-      formData.append("date", data.start_time); // backend expects "date"
+      formData.append("date", data.start_time);
       formData.append("duration", String(data.duration_hours));
+
       if (data.documentation && data.documentation.length > 0) {
-        formData.append("documentation", data.documentation[0]); // only first file
+        formData.append("documentation", data.documentation[0]);
       }
 
       await fetchFormData(
@@ -43,11 +46,27 @@ export const TrainingForm: React.FC<TrainingFormProps> = ({ onSubmit }) => {
         formData,
         "POST",
       );
+
       reset();
+
+      Swal.fire({
+        icon: "success",
+        title: "Berhasil!",
+        text: "Pelatihan berhasil dijadwalkan",
+        timer: 2000,
+        showConfirmButton: false,
+      });
+
       onSubmit();
     } catch (err: any) {
       console.error(err);
-      alert("Gagal menambahkan training: " + (err.message || err));
+
+      Swal.fire({
+        icon: "error",
+        title: "Gagal!",
+        text:
+          "Gagal menambahkan training: " + (err.message || "Terjadi kesalahan"),
+      });
     }
   };
 

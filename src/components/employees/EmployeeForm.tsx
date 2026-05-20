@@ -1,6 +1,7 @@
 import React from "react";
 import { useForm } from "react-hook-form";
 import { User } from "lucide-react";
+import Swal from "sweetalert2";
 
 interface EmployeeFormData {
   name: string;
@@ -33,14 +34,34 @@ export const EmployeeForm: React.FC<EmployeeFormProps> = ({ onSubmit }) => {
         },
       );
 
-      if (!res.ok) throw new Error("Gagal menambahkan karyawan");
+      if (!res.ok) {
+        throw new Error("Gagal menambahkan karyawan");
+      }
 
       const newEmployee = await res.json();
+
+      // Success notification
+      await Swal.fire({
+        icon: "success",
+        title: "Berhasil!",
+        text: "Karyawan berhasil ditambahkan",
+        confirmButtonText: "OK",
+        timer: 2000,
+        timerProgressBar: true,
+      });
+
       reset();
       onSubmit(newEmployee.id);
     } catch (err) {
       console.error("Error:", err);
-      alert("Terjadi kesalahan saat menambahkan karyawan.");
+
+      // Error notification
+      Swal.fire({
+        icon: "error",
+        title: "Gagal!",
+        text: "Terjadi kesalahan saat menambahkan karyawan.",
+        confirmButtonText: "Tutup",
+      });
     }
   };
 

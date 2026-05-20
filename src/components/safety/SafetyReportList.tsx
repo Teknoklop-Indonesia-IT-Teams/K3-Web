@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { fetchJSON } from "../../lib/api";
 import { SafetyReportListProps } from "../../types";
+import Swal from "sweetalert2";
 
 export const SafetyReportList: React.FC<SafetyReportListProps> = ({
   refreshTrigger,
@@ -54,29 +55,54 @@ export const SafetyReportList: React.FC<SafetyReportListProps> = ({
 
     try {
       const body: any = { status: newStatus };
+
       if (newStatus === "selesai") {
         if (!completionDate) {
-          alert("Tanggal selesai wajib diisi!");
+          Swal.fire({
+            icon: "warning",
+            title: "Tanggal wajib diisi",
+            text: "Silakan isi tanggal selesai terlebih dahulu.",
+            confirmButtonColor: "#eab308",
+          });
+
           setSaving(false);
           return;
         }
+
         body.completed_at = completionDate;
       }
 
-      // 🔥 PERBAIKAN: Gunakan fetchJSON untuk konsistensi
       await fetchJSON(`/api/safety/reports/${selectedReport.id}/status`, {
         method: "PUT",
         body: JSON.stringify(body),
       });
 
+      // Success Alert
+      await Swal.fire({
+        icon: "success",
+        title: "Berhasil!",
+        text: "Status laporan berhasil diperbarui.",
+        confirmButtonColor: "#16a34a",
+        timer: 2000,
+        showConfirmButton: false,
+      });
+
       setSelectedReport(null);
       setNewStatus("");
       setCompletionDate("");
+
       loadReports();
+
       if (onUpdate) onUpdate();
     } catch (err: any) {
       console.error("❌ Gagal update status:", err);
-      alert(`Update status gagal: ${err.message}`);
+
+      Swal.fire({
+        icon: "error",
+        title: "Gagal Update",
+        text: err.message || "Terjadi kesalahan saat update status.",
+        confirmButtonColor: "#dc2626",
+      });
     } finally {
       setSaving(false);
     }
@@ -84,19 +110,28 @@ export const SafetyReportList: React.FC<SafetyReportListProps> = ({
 
   const handleDeleteReport = async () => {
     if (!reportToDelete) return;
+
     setDeleting(true);
 
     try {
-      // 🔥 PERBAIKAN: Gunakan fetchJSON untuk konsistensi
       await fetchJSON(`/api/safety/reports/${reportToDelete.id}`, {
         method: "DELETE",
       });
 
-      // Hapus dari state lokal
       setItems(items.filter((item) => item.id !== reportToDelete.id));
+
+      // Success Alert
+      await Swal.fire({
+        icon: "success",
+        title: "Berhasil!",
+        text: "Laporan berhasil dihapus.",
+        confirmButtonColor: "#16a34a",
+        timer: 2000,
+        showConfirmButton: false,
+      });
+
       setReportToDelete(null);
 
-      // Reset pagination jika perlu
       if (currentReports.length === 1 && reportPage > 1) {
         setReportPage(reportPage - 1);
       }
@@ -106,7 +141,13 @@ export const SafetyReportList: React.FC<SafetyReportListProps> = ({
       console.log("✅ Laporan berhasil dihapus");
     } catch (err: any) {
       console.error("❌ Gagal menghapus laporan:", err);
-      alert(`Gagal menghapus laporan: ${err.message}`);
+
+      Swal.fire({
+        icon: "error",
+        title: "Gagal Menghapus",
+        text: err.message || "Terjadi kesalahan saat menghapus laporan.",
+        confirmButtonColor: "#dc2626",
+      });
     } finally {
       setDeleting(false);
     }
