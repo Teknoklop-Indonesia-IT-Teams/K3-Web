@@ -16,6 +16,7 @@ import {
   X,
   User,
 } from "lucide-react";
+import Swal from "sweetalert2";
 
 export const Navbar: React.FC = () => {
   const location = useLocation();
@@ -92,6 +93,20 @@ export const Navbar: React.FC = () => {
   }, [location, isMobile]);
 
   const handleLogout = async () => {
+    const result = await Swal.fire({
+      title: "Logout?",
+      text: "Apakah Anda yakin ingin keluar dari akun?",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonColor: "#dc2626",
+      cancelButtonColor: "#6b7280",
+      confirmButtonText: "Ya, Logout",
+      cancelButtonText: "Batal",
+      reverseButtons: true,
+    });
+
+    if (!result.isConfirmed) return;
+
     try {
       localStorage.removeItem("isLoggedIn");
       localStorage.removeItem("user");
@@ -100,7 +115,13 @@ export const Navbar: React.FC = () => {
       setIsLoggedIn(false);
       setUserData(null);
 
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      await Swal.fire({
+        title: "Berhasil Logout",
+        text: "Anda telah keluar dari sistem",
+        icon: "success",
+        timer: 1500,
+        showConfirmButton: false,
+      });
 
       navigate("/", { replace: true });
 
@@ -109,7 +130,13 @@ export const Navbar: React.FC = () => {
       }, 100);
     } catch (error) {
       console.error("Logout error:", error);
-      window.location.href = "/attendance";
+
+      Swal.fire({
+        title: "Logout Gagal",
+        text: "Terjadi kesalahan saat logout",
+        icon: "error",
+        confirmButtonColor: "#dc2626",
+      });
     }
   };
 
