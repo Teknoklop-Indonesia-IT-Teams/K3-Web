@@ -69,7 +69,7 @@ export const AttendanceChart: React.FC<AttendanceChartProps> = ({
       const formatted: ChartData[] = last12Months.map((month) => ({
         date: month,
         hadir: grouped[month]?.size || 0,
-        target: totalEmployees,
+        target: employees.length,
       }));
 
       setChartData(formatted);
