@@ -9,15 +9,7 @@ import {
   PersonStanding,
   ChefHat,
 } from "lucide-react";
-
-interface EmployeeStatsProps {
-  refreshTrigger: number;
-}
-
-interface StatsResponse {
-  total: number;
-  stats: { department: string; count: number }[];
-}
+import { EmployeeStatsProps, StatsResponse } from "../../types";
 
 // 🔥 PERBAIKAN: Gunakan value yang sama dengan form
 const deptConfig: Record<

@@ -9,19 +9,7 @@ import {
   ResponsiveContainer,
   LabelList,
 } from "recharts";
-
-interface HealthCheck {
-  measured_at: string;
-  blood_pressure_systolic?: number | null;
-  blood_pressure_diastolic?: number | null;
-  blood_sugar?: number | null;
-  cholesterol?: number | null;
-  employee_name: string;
-}
-
-interface HealthChartsProps {
-  refreshTrigger: number;
-}
+import { HealthChartsProps, HealthCheck } from "../../types";
 
 export const HealthCharts: React.FC<HealthChartsProps> = ({
   refreshTrigger,
@@ -31,6 +19,8 @@ export const HealthCharts: React.FC<HealthChartsProps> = ({
   const [search, setSearch] = useState("");
   const [metric, setMetric] = useState("all"); // all | bp | sugar | cholesterol
   const [mode, setMode] = useState("all"); // all | highest | lowest
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
 
   // ✅ state untuk pagination
   const [page, setPage] = useState(1);
@@ -40,7 +30,7 @@ export const HealthCharts: React.FC<HealthChartsProps> = ({
     const fetchChecks = async () => {
       try {
         const res = await fetch(
-          `${import.meta.env.VITE_API_BASE}/api/health/checks`
+          `${import.meta.env.VITE_API_BASE}/api/health/checks`,
         );
         const json = await res.json();
         setRawData(json);
@@ -55,9 +45,21 @@ export const HealthCharts: React.FC<HealthChartsProps> = ({
   }, [refreshTrigger]);
 
   // filter by nama
-  const filtered = rawData.filter((row) =>
-    row.employee_name?.toLowerCase().includes(search.toLowerCase())
-  );
+  const filtered = rawData.filter((row) => {
+    const matchName = row.employee_name
+      ?.toLowerCase()
+      .includes(search.toLowerCase());
+
+    const rowDate = new Date(row.measured_at);
+
+    const matchStart = startDate ? rowDate >= new Date(startDate) : true;
+
+    const matchEnd = endDate
+      ? rowDate <= new Date(endDate + "T23:59:59")
+      : true;
+
+    return matchName && matchStart && matchEnd;
+  });
 
   // ✅ normalisasi field
   const normalized = filtered.map((row) => ({
@@ -157,7 +159,7 @@ export const HealthCharts: React.FC<HealthChartsProps> = ({
   const totalPages = Math.ceil(summaryData.length / pageSize);
   const paginatedData = summaryData.slice(
     (page - 1) * pageSize,
-    page * pageSize
+    page * pageSize,
   );
 
   if (loading) return <p className="text-gray-500">Loading grafik...</p>;
@@ -199,6 +201,27 @@ export const HealthCharts: React.FC<HealthChartsProps> = ({
             onChange={(e) => setSearch(e.target.value)}
             className="px-3 py-1 border rounded-lg text-sm"
           />
+
+          <input
+            type="date"
+            value={startDate}
+            onChange={(e) => {
+              setStartDate(e.target.value);
+              setPage(1);
+            }}
+            className="px-3 py-1 border rounded-lg text-sm"
+          />
+
+          <input
+            type="date"
+            value={endDate}
+            onChange={(e) => {
+              setEndDate(e.target.value);
+              setPage(1);
+            }}
+            className="px-3 py-1 border rounded-lg text-sm"
+          />
+
           <select
             value={metric}
             onChange={(e) => setMetric(e.target.value)}
@@ -209,11 +232,12 @@ export const HealthCharts: React.FC<HealthChartsProps> = ({
             <option value="sugar">Gula</option>
             <option value="cholesterol">Kolesterol</option>
           </select>
+
           <select
             value={mode}
             onChange={(e) => {
               setMode(e.target.value);
-              setPage(1); // reset ke halaman 1 kalau mode berubah
+              setPage(1);
             }}
             className="px-3 py-1 border rounded-lg text-sm"
           >
@@ -221,6 +245,20 @@ export const HealthCharts: React.FC<HealthChartsProps> = ({
             <option value="highest">Tertinggi</option>
             <option value="lowest">Terendah</option>
           </select>
+
+          <button
+            onClick={() => {
+              setSearch("");
+              setStartDate("");
+              setEndDate("");
+              setMetric("all");
+              setMode("all");
+              setPage(1);
+            }}
+            className="px-3 py-1 rounded-lg bg-red-100 text-red-700 hover:bg-red-200 text-sm font-medium"
+          >
+            Clear Filter
+          </button>
         </div>
       </div>
 
@@ -324,7 +362,7 @@ export const HealthCharts: React.FC<HealthChartsProps> = ({
                   >
                     {pageNumber}
                   </button>
-                )
+                ),
               )}
             </div>
           )}

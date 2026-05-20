@@ -10,24 +10,7 @@ import {
 } from "lucide-react";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-
-interface HealthCheck {
-  id: string;
-  employee_name: string;
-  blood_pressure_systolic?: number;
-  blood_pressure_diastolic?: number;
-  heart_rate?: number;
-  spo2?: number;
-  blood_sugar?: number;
-  cholesterol?: number;
-  measured_at: string;
-  notes?: string;
-  signature_data?: string;
-}
-
-interface HealthHistoryProps {
-  refreshTrigger: number;
-}
+import { HealthCheck, HealthHistoryProps } from "../../types";
 
 const ITEMS_PER_PAGE = 3;
 const ROWS_PER_PAGE = 9;
@@ -40,13 +23,13 @@ export const HealthHistory: React.FC<HealthHistoryProps> = ({
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [selectedDate, setSelectedDate] = useState<string>(
-    new Date().toISOString().split("T")[0]
+    new Date().toISOString().split("T")[0],
   );
 
   const fetchChecks = async () => {
     try {
       const res = await fetch(
-        `${import.meta.env.VITE_API_BASE}/api/health/checks`
+        `${import.meta.env.VITE_API_BASE}/api/health/checks`,
       );
       const data = await res.json();
       setChecks(data);
@@ -85,7 +68,7 @@ export const HealthHistory: React.FC<HealthHistoryProps> = ({
   const totalPages = Math.ceil(filteredChecks.length / ITEMS_PER_PAGE);
   const paginatedChecks = filteredChecks.slice(
     (page - 1) * ITEMS_PER_PAGE,
-    page * ITEMS_PER_PAGE
+    page * ITEMS_PER_PAGE,
   );
 
   useEffect(() => {
@@ -124,7 +107,7 @@ export const HealthHistory: React.FC<HealthHistoryProps> = ({
 
     // Filter data berdasarkan tanggal yang dipilih
     const selectedDateData = checks.filter((row) =>
-      row.measured_at.startsWith(selectedDate)
+      row.measured_at.startsWith(selectedDate),
     );
 
     if (selectedDateData.length === 0) {
@@ -141,11 +124,11 @@ export const HealthHistory: React.FC<HealthHistoryProps> = ({
       let imgData: string | null = null;
       try {
         imgData = await loadImageAsDataURL(
-          `${import.meta.env.VITE_API_BASE}/template.png`
+          `${import.meta.env.VITE_API_BASE}/template.png`,
         );
       } catch {
         console.warn(
-          "Template image gagal di-load, PDF tetap dibuat tanpa background."
+          "Template image gagal di-load, PDF tetap dibuat tanpa background.",
         );
       }
 
@@ -234,7 +217,7 @@ export const HealthHistory: React.FC<HealthHistoryProps> = ({
                     x,
                     y,
                     imgWidth,
-                    imgHeight
+                    imgHeight,
                   );
                 } catch (err) {
                   console.warn("Gagal menambahkan tanda tangan:", err);
@@ -243,7 +226,7 @@ export const HealthHistory: React.FC<HealthHistoryProps> = ({
                     "✓",
                     data.cell.x + data.cell.width / 2,
                     data.cell.y + data.cell.height / 2,
-                    { align: "center", baseline: "middle" }
+                    { align: "center", baseline: "middle" },
                   );
                 }
               }
@@ -270,7 +253,7 @@ export const HealthHistory: React.FC<HealthHistoryProps> = ({
             finalY + 20,
             {
               align: "right",
-            }
+            },
           );
 
           doc.setFont("helvetica", "bold");
@@ -418,7 +401,7 @@ export const HealthHistory: React.FC<HealthHistoryProps> = ({
               >
                 {pageNumber}
               </button>
-            )
+            ),
           )}
         </div>
       )}

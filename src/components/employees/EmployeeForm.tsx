@@ -5,6 +5,9 @@ import { User } from "lucide-react";
 interface EmployeeFormData {
   name: string;
   department: string;
+  email: string;
+  phone: string;
+  blood_type: string;
 }
 
 interface EmployeeFormProps {
@@ -27,7 +30,7 @@ export const EmployeeForm: React.FC<EmployeeFormProps> = ({ onSubmit }) => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(data),
-        }
+        },
       );
 
       if (!res.ok) throw new Error("Gagal menambahkan karyawan");
@@ -54,7 +57,7 @@ export const EmployeeForm: React.FC<EmployeeFormProps> = ({ onSubmit }) => {
             Nama Lengkap
           </label>
           <input
-            {...register("name", { required: "Nama lengkap diperlukan" })}
+            {...register("name", { required: "Isi Nama lengkap" })}
             placeholder="Ahmad Susanto"
             className="w-full rounded-lg border-gray-300 border px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
@@ -83,6 +86,52 @@ export const EmployeeForm: React.FC<EmployeeFormProps> = ({ onSubmit }) => {
           {errors.department && (
             <p className="text-red-500 text-sm mt-1">
               {errors.department.message}
+            </p>
+          )}
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Email
+          </label>
+          <input
+            {...register("email")}
+            placeholder="ahmad.susanto@example.com"
+            type="email"
+            className="w-full rounded-lg border-gray-300 border px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          />
+          {errors.email && (
+            <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
+          )}
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            No Telp
+          </label>
+          <input
+            {...register("phone")}
+            placeholder="081234567890"
+            type="number"
+            className="w-full rounded-lg border-gray-300 border px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          />
+          {errors.phone && (
+            <p className="text-red-500 text-sm mt-1">{errors.phone.message}</p>
+          )}
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Golongan Darah
+          </label>
+          <input
+            {...register("blood_type")}
+            placeholder="A, B, AB, O"
+            className="w-full rounded-lg border-gray-300 border px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          />
+          {errors.blood_type && (
+            <p className="text-red-500 text-sm mt-1">
+              {errors.blood_type.message}
             </p>
           )}
         </div>

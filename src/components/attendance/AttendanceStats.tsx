@@ -1,16 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Users, Clock, TrendingUp, Calendar } from "lucide-react";
 import { fetchJSON } from "../../lib/api";
-interface AttendanceStatsProps {
-  refreshTrigger: number;
-}
-
-interface AttendanceStatsData {
-  hadir_hari_ini: number;
-  rata_jam_masuk: number; // jam dalam decimal, ex: 8.20
-  kehadiran_minggu_ini: number;
-  hari_kerja_bulan_ini: number;
-}
+import { AttendanceStatsData, AttendanceStatsProps } from "../../types";
 
 export const AttendanceStats: React.FC<AttendanceStatsProps> = ({
   refreshTrigger,

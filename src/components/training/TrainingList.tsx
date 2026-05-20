@@ -1,18 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Calendar, Clock, ImageIcon, Pencil, X, Search } from "lucide-react";
-
-interface Training {
-  id: string;
-  title: string;
-  trainer: string;
-  start_time: string;
-  duration_hours: number;
-  documentation_url?: string;
-}
-
-interface TrainingListProps {
-  refreshTrigger: number;
-}
+import { Training, TrainingListProps } from "../../types";
 
 const TrainingList: React.FC<TrainingListProps> = ({ refreshTrigger }) => {
   const [items, setItems] = useState<Training[]>([]);
@@ -28,7 +16,7 @@ const TrainingList: React.FC<TrainingListProps> = ({ refreshTrigger }) => {
 
   // state modal upload
   const [selectedTraining, setSelectedTraining] = useState<Training | null>(
-    null
+    null,
   );
   const [uploading, setUploading] = useState(false);
 
@@ -42,7 +30,7 @@ const TrainingList: React.FC<TrainingListProps> = ({ refreshTrigger }) => {
       // urutkan terbaru berdasarkan start_time
       const sorted = data.sort(
         (a, b) =>
-          new Date(b.start_time).getTime() - new Date(a.start_time).getTime()
+          new Date(b.start_time).getTime() - new Date(a.start_time).getTime(),
       );
       setItems(sorted);
     } catch (err: any) {
@@ -71,7 +59,7 @@ const TrainingList: React.FC<TrainingListProps> = ({ refreshTrigger }) => {
         {
           method: "PUT",
           body: formData,
-        }
+        },
       );
 
       setSelectedTraining(null); // tutup modal
@@ -88,7 +76,7 @@ const TrainingList: React.FC<TrainingListProps> = ({ refreshTrigger }) => {
   const filteredItems = items.filter(
     (t) =>
       t.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      t.trainer.toLowerCase().includes(searchTerm.toLowerCase())
+      t.trainer?.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   // pagination slice

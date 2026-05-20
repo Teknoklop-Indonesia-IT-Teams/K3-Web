@@ -12,35 +12,12 @@ import {
   Users,
   BookOpen,
 } from "lucide-react";
-
-interface AttendanceFormData {
-  training_id: string;
-  participant_name: string;
-  notes: string;
-}
-
-interface AttendanceFormProps {
-  onSubmitSuccess: () => void;
-  refreshTrigger: number;
-}
-
-interface Training {
-  id: string;
-  title: string;
-  description?: string;
-  start_time: string;
-  end_time: string;
-  location?: string;
-  trainer?: string;
-  max_participants?: number;
-  current_participants?: number;
-}
-
-interface Employee {
-  id: number;
-  name: string;
-  department: string;
-}
+import {
+  AttendanceFormProps,
+  AttendanceRecord,
+  Employee,
+  Training,
+} from "../../types";
 
 export const AttendanceForm: React.FC<AttendanceFormProps> = ({
   onSubmitSuccess,
@@ -56,7 +33,7 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
   const [isEmployeeDropdownOpen, setIsEmployeeDropdownOpen] = useState(false);
   const [isTrainingDropdownOpen, setIsTrainingDropdownOpen] = useState(false);
   const [selectedTraining, setSelectedTraining] = useState<Training | null>(
-    null
+    null,
   );
 
   const {
@@ -66,7 +43,7 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
     setValue,
     watch,
     formState: { errors },
-  } = useForm<AttendanceFormData>();
+  } = useForm<AttendanceRecord>();
 
   const selectedParticipant = watch("participant_name");
   const selectedTrainingId = watch("training_id");
@@ -77,7 +54,7 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
     return employees.filter(
       (employee) =>
         employee.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        employee.department.toLowerCase().includes(searchTerm.toLowerCase())
+        employee.department.toLowerCase().includes(searchTerm.toLowerCase()),
     );
   }, [employees, searchTerm]);
 
@@ -87,7 +64,7 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
       (training) =>
         training.title.toLowerCase().includes(searchTrain.toLowerCase()) ||
         training.trainer?.toLowerCase().includes(searchTrain.toLowerCase()) ||
-        training.location?.toLowerCase().includes(searchTrain.toLowerCase())
+        training.location?.toLowerCase().includes(searchTrain.toLowerCase()),
     );
   }, [trainings, searchTrain]);
 
@@ -116,7 +93,7 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
       try {
         setIsLoading(true);
         const res = await fetch(
-          `${import.meta.env.VITE_API_BASE}/api/trainings`
+          `${import.meta.env.VITE_API_BASE}/api/trainings`,
         );
         if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
         const data: Training[] = await res.json();
@@ -136,7 +113,7 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
       try {
         setIsLoadingEmployees(true);
         const res = await fetch(
-          `${import.meta.env.VITE_API_BASE}/api/employees`
+          `${import.meta.env.VITE_API_BASE}/api/employees`,
         );
         if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
         const data: Employee[] = await res.json();
@@ -151,7 +128,7 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
     fetchEmployees();
   }, []);
 
-  const onFormSubmit = async (data: AttendanceFormData) => {
+  const onFormSubmit = async (data: AttendanceRecord) => {
     if (!signatureData) {
       alert("Tanda tangan diperlukan");
       return;
@@ -204,8 +181,16 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
   };
 
   // Format date and time
-  const formatDateTime = (dateString: string) => {
+  const formatDateTime = (dateString?: string) => {
+    if (!dateString) {
+      return { date: "-", time: "-" };
+    }
+
     const date = new Date(dateString);
+    if (Number.isNaN(date.getTime())) {
+      return { date: "-", time: "-" };
+    }
+
     return {
       date: date.toLocaleDateString("id-ID", {
         weekday: "long",

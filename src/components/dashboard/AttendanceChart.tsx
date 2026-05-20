@@ -9,89 +9,84 @@ import {
   ResponsiveContainer,
   Legend,
 } from "recharts";
-
-interface AttendanceRecord {
-  id: number;
-  participant_name: string;
-  training_id: string;
-  timestamp: string;
-  notes?: string;
-  signature?: string;
-}
-
-interface ChartData {
-  date: string;
-  hadir: number;
-  target: number;
-}
-
-interface AttendanceChartProps {
-  refreshTrigger: number;
-}
+import {
+  AttendanceChartProps,
+  AttendanceRecord,
+  ChartData,
+  Employee,
+} from "../../types";
 
 export const AttendanceChart: React.FC<AttendanceChartProps> = ({
   refreshTrigger,
 }) => {
   const [chartData, setChartData] = useState<ChartData[]>([]);
   const [loading, setLoading] = useState(true);
+  const [totalEmployees, setTotalEmployees] = useState(0);
 
   const fetchAttendance = async () => {
     try {
-      setLoading(true);
-      const res = await fetch(
-        `${import.meta.env.VITE_API_BASE}/api/attendance`
-      );
-      const data: AttendanceRecord[] = await res.json();
+      const [attendanceRes, employeeRes] = await Promise.all([
+        fetch(`${import.meta.env.VITE_API_BASE}/api/attendance`),
+        fetch(`${import.meta.env.VITE_API_BASE}/api/employees`),
+      ]);
 
-      // Group peserta unik per tanggal (7 hari terakhir)
-      const last7Days = Array.from({ length: 7 }, (_, i) => {
+      const data: AttendanceRecord[] = await attendanceRes.json();
+      const employees: Employee[] = await employeeRes.json();
+
+      setTotalEmployees(employees.length);
+
+      // Generate 12 bulan terakhir
+      const last12Months = Array.from({ length: 12 }, (_, i) => {
         const date = new Date();
-        date.setDate(date.getDate() - i);
+        date.setMonth(date.getMonth() - (11 - i));
+
         return date.toLocaleDateString("id-ID", {
-          day: "2-digit",
           month: "short",
+          year: "numeric",
         });
-      }).reverse();
-
-      const grouped: { [date: string]: Set<string> } = {};
-
-      // Initialize dengan 0 untuk semua tanggal
-      last7Days.forEach((date) => {
-        grouped[date] = new Set();
       });
 
-      // Isi data yang ada
+      const grouped: { [month: string]: Set<string> } = {};
+
+      // Initialize semua bulan
+      last12Months.forEach((month) => {
+        grouped[month] = new Set();
+      });
+
+      // Group data berdasarkan bulan
       data.forEach((record) => {
-        const date = new Date(record.timestamp).toLocaleDateString("id-ID", {
-          day: "2-digit",
+        const month = new Date(record.timestamp).toLocaleDateString("id-ID", {
           month: "short",
+          year: "numeric",
         });
-        if (grouped[date]) {
-          grouped[date].add(record.participant_name);
+
+        if (grouped[month]) {
+          grouped[month].add(record.participant_name);
         }
       });
 
-      // Convert ke format chart
-      const formatted: ChartData[] = last7Days.map((date) => ({
-        date,
-        hadir: grouped[date]?.size || 0,
-        target: 50, // target tetap
+      // Format chart
+      const formatted: ChartData[] = last12Months.map((month) => ({
+        date: month,
+        hadir: grouped[month]?.size || 0,
+        target: totalEmployees,
       }));
 
       setChartData(formatted);
     } catch (err) {
       console.error("❌ Gagal ambil data chart:", err);
       // Fallback data
-      const fallbackData = Array.from({ length: 7 }, (_, i) => {
+      const fallbackData = Array.from({ length: 12 }, (_, i) => {
         const date = new Date();
-        date.setDate(date.getDate() - (6 - i));
+        date.setMonth(date.getMonth() - (11 - i));
+
         return {
           date: date.toLocaleDateString("id-ID", {
-            day: "2-digit",
             month: "short",
+            year: "numeric",
           }),
           hadir: 0,
-          target: 50,
+          target: totalEmployees,
         };
       });
       setChartData(fallbackData);

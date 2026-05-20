@@ -1,13 +1,5 @@
-import React from 'react';
-
-interface StatsCardProps {
-  title: string;
-  value: string;
-  change: string;
-  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>; // tipe icon aman
-  trend: 'up' | 'down';
-  color: 'blue' | 'green' | 'red' | 'purple';
-}
+import React from "react";
+import { StatsCardProps } from "../../types";
 
 export const StatsCard: React.FC<StatsCardProps> = ({
   title,
@@ -17,16 +9,16 @@ export const StatsCard: React.FC<StatsCardProps> = ({
   trend,
   color,
 }) => {
-  const colorClasses: Record<StatsCardProps['color'], string> = {
-    blue: 'bg-blue-500',
-    green: 'bg-green-500',
-    red: 'bg-red-500',
-    purple: 'bg-purple-500',
+  const colorClasses: Record<StatsCardProps["color"], string> = {
+    blue: "bg-blue-500",
+    green: "bg-green-500",
+    red: "bg-red-500",
+    purple: "bg-purple-500",
   };
 
-  const trendClasses: Record<StatsCardProps['trend'], string> = {
-    up: 'text-green-600',
-    down: 'text-red-600',
+  const trendClasses: Record<StatsCardProps["trend"], string> = {
+    up: "text-green-600",
+    down: "text-red-600",
   };
 
   return (

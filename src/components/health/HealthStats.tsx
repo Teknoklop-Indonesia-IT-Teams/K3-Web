@@ -1,17 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Heart, Activity, Thermometer, Scale } from "lucide-react";
-
-interface HealthStatsData {
-  avg_systolic: number;
-  avg_diastolic: number;
-  avg_heart_rate: number;
-  avg_temperature: number;
-  total_this_month: number;
-}
-
-interface HealthStatsProps {
-  refreshTrigger: number;
-}
+import { HealthStatsData, HealthStatsProps } from "../../types";
 
 export const HealthStats: React.FC<HealthStatsProps> = ({ refreshTrigger }) => {
   const [stats, setStats] = useState<HealthStatsData | null>(null);
@@ -21,7 +10,7 @@ export const HealthStats: React.FC<HealthStatsProps> = ({ refreshTrigger }) => {
     const fetchStats = async () => {
       try {
         const res = await fetch(
-          `${import.meta.env.VITE_API_BASE}/api/health/stats`
+          `${import.meta.env.VITE_API_BASE}/api/health/stats`,
         );
         const data = await res.json();
         setStats(data);

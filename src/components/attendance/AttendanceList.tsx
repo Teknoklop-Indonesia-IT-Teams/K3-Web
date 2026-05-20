@@ -9,33 +9,12 @@ import {
   ChevronDown,
   ChevronUp,
 } from "lucide-react";
-
-interface Participant {
-  participant_name: string;
-  timestamp: string;
-  notes?: string;
-}
-
-interface Training {
-  id: string;
-  title: string;
-  total_participants: number;
-  start_time?: string;
-  end_time?: string;
-  location?: string;
-}
-
-interface Employee {
-  id: number;
-  name: string;
-  department: string;
-}
-
-interface AttendanceListProps {
-  refreshTrigger?: number;
-  employeesPerPage?: number;
-  trainingsPerPage?: number;
-}
+import {
+  AttendanceListProps,
+  Employee,
+  Participant,
+  Training,
+} from "../../types";
 
 const AttendanceList: React.FC<AttendanceListProps> = ({
   refreshTrigger,
@@ -46,10 +25,10 @@ const AttendanceList: React.FC<AttendanceListProps> = ({
   const [allEmployees, setAllEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedTrainingId, setExpandedTrainingId] = useState<string | null>(
-    null
+    null,
   );
   const [expandedEmployeeIds, setExpandedEmployeeIds] = useState<Set<string>>(
-    new Set()
+    new Set(),
   );
   const [participantsMap, setParticipantsMap] = useState<
     Record<string, Participant[]>
@@ -91,7 +70,7 @@ const AttendanceList: React.FC<AttendanceListProps> = ({
       const res = await fetch(
         `${
           import.meta.env.VITE_API_BASE
-        }/api/attendance/${trainingId}/participants`
+        }/api/attendance/${trainingId}/participants`,
       );
       let data: Participant[] = await res.json();
 
@@ -113,7 +92,7 @@ const AttendanceList: React.FC<AttendanceListProps> = ({
 
   // Filter trainings based on search term
   const filteredTrainings = trainings.filter((t) =>
-    t.title.toLowerCase().includes(searchTerm.toLowerCase())
+    t.title.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   // Get employees who attended a specific training
@@ -122,17 +101,17 @@ const AttendanceList: React.FC<AttendanceListProps> = ({
     const participantNames = participants.map((p) => p.participant_name);
 
     return allEmployees.filter((employee) =>
-      participantNames.includes(employee.name)
+      participantNames.includes(employee.name),
     );
   };
 
   // Get participant details for a specific employee in a training
   const getParticipantDetails = (
     trainingId: string,
-    employeeName: string
+    employeeName: string,
   ): Participant | undefined => {
     return participantsMap[trainingId]?.find(
-      (p) => p.participant_name === employeeName
+      (p) => p.participant_name === employeeName,
     );
   };
 
@@ -170,12 +149,12 @@ const AttendanceList: React.FC<AttendanceListProps> = ({
   };
 
   const totalTrainingPages = Math.ceil(
-    filteredTrainings.length / trainingsPerPage
+    filteredTrainings.length / trainingsPerPage,
   );
   const startTrainingIdx = (trainingPage - 1) * trainingsPerPage;
   const currentTrainings = filteredTrainings.slice(
     startTrainingIdx,
-    startTrainingIdx + trainingsPerPage
+    startTrainingIdx + trainingsPerPage,
   );
 
   if (loading) {
@@ -230,13 +209,13 @@ const AttendanceList: React.FC<AttendanceListProps> = ({
             const attendingEmployees = getAttendingEmployees(training.id);
             const currentEmployeePage = employeePageMap[training.id] || 1;
             const totalEmployeePages = Math.ceil(
-              attendingEmployees.length / employeesPerPage
+              attendingEmployees.length / employeesPerPage,
             );
             const startEmployeeIdx =
               (currentEmployeePage - 1) * employeesPerPage;
             const currentEmployees = attendingEmployees.slice(
               startEmployeeIdx,
-              startEmployeeIdx + employeesPerPage
+              startEmployeeIdx + employeesPerPage,
             );
 
             return (
@@ -249,7 +228,7 @@ const AttendanceList: React.FC<AttendanceListProps> = ({
                   className="flex justify-between items-center p-6 cursor-pointer hover:bg-white transition-colors duration-200"
                   onClick={() => {
                     setExpandedTrainingId(
-                      expandedTrainingId === training.id ? null : training.id
+                      expandedTrainingId === training.id ? null : training.id,
                     );
                     if (expandedTrainingId !== training.id)
                       fetchParticipants(training.id);
@@ -310,10 +289,10 @@ const AttendanceList: React.FC<AttendanceListProps> = ({
                           {currentEmployees.map((employee) => {
                             const participantDetails = getParticipantDetails(
                               training.id,
-                              employee.name
+                              employee.name,
                             );
                             const isExpanded = expandedEmployeeIds.has(
-                              employee.id.toString()
+                              employee.id.toString(),
                             );
 
                             return (
@@ -326,7 +305,7 @@ const AttendanceList: React.FC<AttendanceListProps> = ({
                                   className="flex items-center justify-between p-4 cursor-pointer"
                                   onClick={() =>
                                     toggleEmployeeExpansion(
-                                      employee.id.toString()
+                                      employee.id.toString(),
                                     )
                                   }
                                 >
@@ -368,12 +347,12 @@ const AttendanceList: React.FC<AttendanceListProps> = ({
                                             </p>
                                             <p className="text-gray-600">
                                               {formatDate(
-                                                participantDetails.timestamp
+                                                participantDetails.timestamp,
                                               )}
                                             </p>
                                             <p className="text-gray-600">
                                               {formatTime(
-                                                participantDetails.timestamp
+                                                participantDetails.timestamp,
                                               )}
                                             </p>
                                           </div>
@@ -408,7 +387,7 @@ const AttendanceList: React.FC<AttendanceListProps> = ({
                                   ...prev,
                                   [training.id]: Math.max(
                                     1,
-                                    currentEmployeePage - 1
+                                    currentEmployeePage - 1,
                                   ),
                                 }))
                               }
@@ -453,7 +432,7 @@ const AttendanceList: React.FC<AttendanceListProps> = ({
                                     {pageNum}
                                   </button>
                                 );
-                              }
+                              },
                             )}
 
                             <button
@@ -462,7 +441,7 @@ const AttendanceList: React.FC<AttendanceListProps> = ({
                                   ...prev,
                                   [training.id]: Math.min(
                                     totalEmployeePages,
-                                    currentEmployeePage + 1
+                                    currentEmployeePage + 1,
                                   ),
                                 }))
                               }
@@ -508,7 +487,7 @@ const AttendanceList: React.FC<AttendanceListProps> = ({
                 >
                   {page}
                 </button>
-              )
+              ),
             )}
 
             <button

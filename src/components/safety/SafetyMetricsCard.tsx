@@ -1,9 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Shield, AlertTriangle, CheckCircle, Clock } from "lucide-react";
-
-interface SafetyMetricsCardProps {
-  refreshTrigger: number;
-}
+import { SafetyMetricsCardProps } from "../../types";
 
 export const SafetyMetricsCard: React.FC<SafetyMetricsCardProps> = ({
   refreshTrigger,

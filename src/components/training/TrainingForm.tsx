@@ -1,12 +1,13 @@
 import React from "react";
 import { useForm } from "react-hook-form";
 import { BookOpen, Calendar, Image as ImageIcon } from "lucide-react";
+import { TrainingFormData } from "../../types";
 
 // ================= Utility import.meta.env.VITE_API_BASE =================
 export async function fetchFormData<T = any>(
   url: string,
   formData: FormData,
-  method: string = "POST"
+  method: string = "POST",
 ): Promise<T> {
   const res = await fetch(url, {
     method,
@@ -17,13 +18,6 @@ export async function fetchFormData<T = any>(
 }
 
 // ================= Types =================
-interface TrainingFormData {
-  title: string;
-  trainer: string;
-  start_time: string;
-  duration_hours: number;
-  documentation?: FileList;
-}
 
 interface TrainingFormProps {
   onSubmit: () => void;
@@ -47,7 +41,7 @@ export const TrainingForm: React.FC<TrainingFormProps> = ({ onSubmit }) => {
       await fetchFormData(
         `${import.meta.env.VITE_API_BASE}/api/trainings`,
         formData,
-        "POST"
+        "POST",
       );
       reset();
       onSubmit();

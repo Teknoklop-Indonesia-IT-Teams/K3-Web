@@ -1,17 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { BookOpen, Layers, Clock, Users } from "lucide-react";
-
-interface Training {
-  id: string;
-  title: string;
-  trainer: string;
-  start_time: string;
-  duration_hours: number;
-}
-
-interface TrainingStatsProps {
-  refreshTrigger: number;
-}
+import { Training, TrainingStatsProps } from "../../types";
 
 export const TrainingStats: React.FC<TrainingStatsProps> = ({
   refreshTrigger,
@@ -53,7 +42,7 @@ export const TrainingStats: React.FC<TrainingStatsProps> = ({
   const uniqueTitles = new Set(trainingsThisMonth.map((t) => t.title)).size;
   const totalHours = trainingsThisMonth.reduce(
     (sum, t) => sum + Number(t.duration_hours),
-    0
+    0,
   );
   const totalParticipants = 22; // sementara dummy
 

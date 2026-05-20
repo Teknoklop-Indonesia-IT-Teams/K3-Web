@@ -8,32 +8,7 @@ import {
   Search,
   Users,
 } from "lucide-react";
-
-interface SafetyReportFormData {
-  title: string;
-  incident_type:
-    | ""
-    | "near_miss"
-    | "accident"
-    | "equipment_failure"
-    | "safety_violation"
-    | "environmental";
-  severity: "low" | "medium" | "high" | "critical";
-  status: "selesai" | "investigasi" | "pending";
-  location: string;
-  incident_date: string;
-  incident_time: string;
-  description: string;
-  reporter_name: string;
-  witnesses: string;
-  immediate_action: string;
-}
-
-interface Employee {
-  id: number;
-  name: string;
-  department: string;
-}
+import { Employee, SafetyReportFormData } from "../../types";
 
 interface SafetyReportFormProps {
   onSubmit: () => void;
@@ -73,7 +48,7 @@ export const SafetyReportForm: React.FC<SafetyReportFormProps> = ({
     const fetchEmployees = async () => {
       try {
         const res = await fetch(
-          `${import.meta.env.VITE_API_BASE}/api/employees`
+          `${import.meta.env.VITE_API_BASE}/api/employees`,
         );
         const data = await res.json();
         setEmployees(data);
@@ -89,7 +64,7 @@ export const SafetyReportForm: React.FC<SafetyReportFormProps> = ({
   useEffect(() => {
     if (employeeSearch) {
       const filtered = employees.filter((emp) =>
-        emp.name.toLowerCase().includes(employeeSearch.toLowerCase())
+        emp.name.toLowerCase().includes(employeeSearch.toLowerCase()),
       );
       setFilteredEmployees(filtered);
     } else {
@@ -135,7 +110,7 @@ export const SafetyReportForm: React.FC<SafetyReportFormProps> = ({
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
-        }
+        },
       );
 
       if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
@@ -173,7 +148,7 @@ export const SafetyReportForm: React.FC<SafetyReportFormProps> = ({
   };
 
   const handleEmployeeInputChange = (
-    e: React.ChangeEvent<HTMLInputElement>
+    e: React.ChangeEvent<HTMLInputElement>,
   ) => {
     setEmployeeSearch(e.target.value);
     setShowEmployeeDropdown(true);
@@ -215,7 +190,7 @@ export const SafetyReportForm: React.FC<SafetyReportFormProps> = ({
             onChange={(e) =>
               setValue(
                 "incident_type",
-                e.target.value as SafetyReportFormData["incident_type"]
+                e.target.value as SafetyReportFormData["incident_type"],
               )
             }
             className="w-full rounded-lg border-gray-300 border px-4 py-3"

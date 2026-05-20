@@ -469,9 +469,16 @@ app.get("/api/employees", async (req, res) => {
 
 app.post("/api/employees", async (req, res) => {
   try {
-    const { name, department } = req.body;
-    const q = `INSERT INTO employees (name, department) VALUES ($1,$2) RETURNING *`;
-    const values = [name, department];
+    const { name, department, blood_type, email, phone, status } = req.body;
+    const q = `INSERT INTO employees (name, department, blood_type, email, phone, status) VALUES ($1,$2,$3,$4,$5,$6) RETURNING *`;
+    const values = [
+      name,
+      department,
+      blood_type,
+      email,
+      phone,
+      status || "active",
+    ];
     const { rows } = await pools.employees.query(q, values);
     res.status(201).json(rows[0]);
   } catch (err) {
@@ -484,19 +491,29 @@ app.post("/api/employees", async (req, res) => {
 app.put("/api/employees/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, division } = req.body;
+    const { name, department, blood_type, email, phone, status } = req.body;
 
-    if (!name || !division) {
-      return res.status(400).json({ error: "Name and division are required" });
+    if (!name || !department) {
+      return res
+        .status(400)
+        .json({ error: "Name and department are required" });
     }
 
     const q = `
       UPDATE employees 
-      SET name = $1, department = $2, updated_at = NOW()
-      WHERE id = $3
+      SET name = $1, department = $2, blood_type = $3, email = $4, phone = $5, status = $6, updated_at = NOW()
+      WHERE id = $7
       RETURNING *
     `;
-    const values = [name, division, id];
+    const values = [
+      name,
+      department,
+      blood_type,
+      email,
+      phone,
+      status || "active",
+      id,
+    ];
     const { rows } = await pools.employees.query(q, values);
 
     if (rows.length === 0) {

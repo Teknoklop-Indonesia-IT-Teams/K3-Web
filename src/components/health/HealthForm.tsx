@@ -1,12 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { SignatureCapture } from "../shared/SignatureCapture";
 import { Search, User, ChevronDown, ChevronUp } from "lucide-react";
-
-interface Employee {
-  id: number;
-  name: string;
-  department?: string;
-}
+import { Employee } from "../../types";
 
 export const HealthForm: React.FC<{ onSuccess?: () => void }> = ({
   onSuccess,
@@ -37,7 +32,7 @@ export const HealthForm: React.FC<{ onSuccess?: () => void }> = ({
       try {
         setLoadingEmployees(true);
         const res = await fetch(
-          `${import.meta.env.VITE_API_BASE}/api/employees`
+          `${import.meta.env.VITE_API_BASE}/api/employees`,
         );
         if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
         const data: Employee[] = await res.json();
@@ -58,12 +53,12 @@ export const HealthForm: React.FC<{ onSuccess?: () => void }> = ({
     return employees.filter(
       (employee) =>
         employee.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        employee.department?.toLowerCase().includes(searchTerm.toLowerCase())
+        employee.department?.toLowerCase().includes(searchTerm.toLowerCase()),
     );
   }, [employees, searchTerm]);
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
@@ -116,7 +111,7 @@ export const HealthForm: React.FC<{ onSuccess?: () => void }> = ({
             cholesterol: form.cholesterol ? Number(form.cholesterol) : null,
             signature: signatureData,
           }),
-        }
+        },
       );
 
       if (!res.ok) throw new Error("Gagal simpan data");

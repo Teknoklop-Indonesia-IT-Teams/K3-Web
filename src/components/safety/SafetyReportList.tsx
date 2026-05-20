@@ -11,11 +11,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { fetchJSON } from "../../lib/api";
-
-interface SafetyReportListProps {
-  refreshTrigger: number;
-  onUpdate?: () => void;
-}
+import { SafetyReportListProps } from "../../types";
 
 export const SafetyReportList: React.FC<SafetyReportListProps> = ({
   refreshTrigger,
@@ -293,7 +289,7 @@ export const SafetyReportList: React.FC<SafetyReportListProps> = ({
               >
                 {pageNum}
               </button>
-            )
+            ),
           )}
         </div>
       )}

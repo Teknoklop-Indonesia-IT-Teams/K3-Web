@@ -12,24 +12,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
-
-interface Employee {
-  id: number;
-  name: string;
-  department: string;
-}
-
-interface TrainingHistory {
-  training_title: string;
-  start_time: string;
-  attendance_date: string | null;
-  status: "attended" | "upcoming" | "absent";
-}
-
-interface EmployeeListProps {
-  refreshTrigger: number;
-  highlightId: number | null;
-}
+import { Employee, EmployeeListProps, TrainingHistory } from "../../types";
 
 export const EmployeeList: React.FC<EmployeeListProps> = ({
   refreshTrigger,
@@ -39,7 +22,14 @@ export const EmployeeList: React.FC<EmployeeListProps> = ({
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [editingId, setEditingId] = useState<number | null>(null);
-  const [editForm, setEditForm] = useState({ name: "", department: "" });
+  const [editForm, setEditForm] = useState({
+    name: "",
+    department: "",
+    blood_type: "",
+    email: "",
+    phone: "",
+    status: "",
+  });
   const [detailEmployee, setDetailEmployee] = useState<Employee | null>(null);
   const [trainingHistory, setTrainingHistory] = useState<TrainingHistory[]>([]);
   const [loadingHistory, setLoadingHistory] = useState(false);
@@ -56,6 +46,11 @@ export const EmployeeList: React.FC<EmployeeListProps> = ({
     { value: "IT", label: "IT" },
     { value: "Admin", label: "Finance" },
     { value: "Cook", label: "Cook" },
+  ];
+
+  const status = [
+    { value: "active", label: "Aktif" },
+    { value: "non-active", label: "Tidak Aktif" },
   ];
 
   useEffect(() => {
@@ -92,8 +87,8 @@ export const EmployeeList: React.FC<EmployeeListProps> = ({
     try {
       const res = await fetch(
         `${import.meta.env.VITE_API_BASE}/api/employees/${encodeURIComponent(
-          employeeName
-        )}/training-history`
+          employeeName,
+        )}/training-history`,
       );
       if (res.ok) {
         const data = await res.json();
@@ -112,7 +107,14 @@ export const EmployeeList: React.FC<EmployeeListProps> = ({
 
   const handleEdit = (employee: Employee) => {
     setEditingId(employee.id);
-    setEditForm({ name: employee.name, department: employee.department });
+    setEditForm({
+      name: employee.name,
+      department: employee.department,
+      blood_type: employee.blood_type,
+      email: employee.email,
+      phone: employee.phone,
+      status: employee.status,
+    });
   };
 
   const handleSave = async (id: number) => {
@@ -124,9 +126,13 @@ export const EmployeeList: React.FC<EmployeeListProps> = ({
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             name: editForm.name,
-            division: editForm.department,
+            department: editForm.department,
+            blood_type: editForm.blood_type,
+            email: editForm.email,
+            phone: editForm.phone,
+            status: editForm.status,
           }),
-        }
+        },
       );
 
       if (res.ok) {
@@ -134,8 +140,8 @@ export const EmployeeList: React.FC<EmployeeListProps> = ({
           employees.map((emp) =>
             emp.id === id
               ? { ...emp, name: editForm.name, department: editForm.department }
-              : emp
-          )
+              : emp,
+          ),
         );
         setEditingId(null);
         if (detailEmployee?.id === id) {
@@ -143,6 +149,10 @@ export const EmployeeList: React.FC<EmployeeListProps> = ({
             ...detailEmployee,
             name: editForm.name,
             department: editForm.department,
+            email: editForm.email,
+            phone: editForm.phone,
+            blood_type: editForm.blood_type,
+            status: editForm.status,
           });
         }
       }
@@ -162,7 +172,7 @@ export const EmployeeList: React.FC<EmployeeListProps> = ({
         `${import.meta.env.VITE_API_BASE}/api/employees/${id}`,
         {
           method: "DELETE",
-        }
+        },
       );
 
       if (res.ok) {
@@ -189,7 +199,14 @@ export const EmployeeList: React.FC<EmployeeListProps> = ({
 
   const cancelEdit = () => {
     setEditingId(null);
-    setEditForm({ name: "", department: "" });
+    setEditForm({
+      name: "",
+      department: "",
+      blood_type: "",
+      email: "",
+      phone: "",
+      status: "",
+    });
   };
 
   const getTrainingStatus = (training: TrainingHistory) => {
@@ -199,12 +216,12 @@ export const EmployeeList: React.FC<EmployeeListProps> = ({
     const todayDateOnly = new Date(
       today.getFullYear(),
       today.getMonth(),
-      today.getDate()
+      today.getDate(),
     );
     const trainingDateOnly = new Date(
       trainingDate.getFullYear(),
       trainingDate.getMonth(),
-      trainingDate.getDate()
+      trainingDate.getDate(),
     );
 
     switch (training.status) {
@@ -219,7 +236,7 @@ export const EmployeeList: React.FC<EmployeeListProps> = ({
       case "upcoming":
         const daysUntil = Math.ceil(
           (trainingDateOnly.getTime() - todayDateOnly.getTime()) /
-            (1000 * 60 * 60 * 24)
+            (1000 * 60 * 60 * 24),
         );
         return {
           status:
@@ -249,11 +266,11 @@ export const EmployeeList: React.FC<EmployeeListProps> = ({
 
   const calculateStats = () => {
     const attended = trainingHistory.filter(
-      (t) => t.status === "attended"
+      (t) => t.status === "attended",
     ).length;
     const absent = trainingHistory.filter((t) => t.status === "absent").length;
     const upcoming = trainingHistory.filter(
-      (t) => t.status === "upcoming"
+      (t) => t.status === "upcoming",
     ).length;
 
     return { attended, absent, upcoming };
@@ -270,14 +287,15 @@ export const EmployeeList: React.FC<EmployeeListProps> = ({
   const filteredEmployees = employees.filter(
     (employee) =>
       employee.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      employee.department.toLowerCase().includes(searchTerm.toLowerCase())
+      employee.department.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      employee.status.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   const totalPages = Math.ceil(filteredEmployees.length / employeesPerPage);
   const startIdx = (currentPage - 1) * employeesPerPage;
   const visibleEmployees = filteredEmployees.slice(
     startIdx,
-    startIdx + employeesPerPage
+    startIdx + employeesPerPage,
   );
 
   const stats = calculateStats();
@@ -383,6 +401,73 @@ export const EmployeeList: React.FC<EmployeeListProps> = ({
                         ))}
                       </select>
                     </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Email
+                      </label>
+                      <input
+                        type="email"
+                        value={editForm.email}
+                        onChange={(e) =>
+                          setEditForm({ ...editForm, email: e.target.value })
+                        }
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="Masukkan email karyawan"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        No Telp
+                      </label>
+                      <input
+                        type="number"
+                        value={editForm.phone}
+                        onChange={(e) =>
+                          setEditForm({ ...editForm, phone: e.target.value })
+                        }
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="Masukkan no telp karyawan"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Blood Type
+                      </label>
+                      <input
+                        type="text"
+                        value={editForm.blood_type}
+                        onChange={(e) =>
+                          setEditForm({
+                            ...editForm,
+                            blood_type: e.target.value,
+                          })
+                        }
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="Masukkan golongan darah karyawan"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Status
+                      </label>
+                      <select
+                        value={editForm.status}
+                        onChange={(e) =>
+                          setEditForm({
+                            ...editForm,
+                            status: e.target.value,
+                          })
+                        }
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      >
+                        <option value="">Pilih Status</option>
+                        {status.map((s) => (
+                          <option key={s.value} value={s.value}>
+                            {s.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
                     <div className="flex flex-col xs:flex-row gap-2">
                       <button
                         onClick={() => handleSave(employee.id)}
@@ -409,8 +494,26 @@ export const EmployeeList: React.FC<EmployeeListProps> = ({
                       <div className="text-sm text-gray-600 truncate">
                         {/* 🔥 PERBAIKAN: Tampilkan label yang sesuai dengan value */}
                         {departments.find(
-                          (dept) => dept.value === employee.department
+                          (dept) => dept.value === employee.department,
                         )?.label || employee.department}
+                      </div>
+                      <div className="text-sm text-gray-900 truncate">
+                        Goldar :
+                        <span
+                          className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                            employee.blood_type === "A"
+                              ? "bg-blue-100 text-blue-800"
+                              : employee.blood_type === "B"
+                                ? "bg-red-100 text-red-800"
+                                : employee.blood_type === "AB"
+                                  ? "bg-purple-100 text-purple-800"
+                                  : employee.blood_type === "O"
+                                    ? "bg-green-100 text-green-800"
+                                    : "bg-gray-100 text-gray-800"
+                          }`}
+                        >
+                          {employee.blood_type || "-"}
+                        </span>
                       </div>
                     </div>
                     <div className="flex justify-end space-x-1 sm:space-x-2 flex-shrink-0">
@@ -543,7 +646,7 @@ export const EmployeeList: React.FC<EmployeeListProps> = ({
                       <p className="font-medium text-gray-900 break-words">
                         {/* 🔥 PERBAIKAN: Tampilkan label yang sesuai dengan value */}
                         {departments.find(
-                          (dept) => dept.value === detailEmployee.department
+                          (dept) => dept.value === detailEmployee.department,
                         )?.label || detailEmployee.department}
                       </p>
                     </div>
@@ -552,8 +655,34 @@ export const EmployeeList: React.FC<EmployeeListProps> = ({
                         Status:
                       </span>
                       <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                        Aktif
+                        {detailEmployee.status === "active"
+                          ? "Aktif"
+                          : "Tidak Aktif"}
                       </span>
+                    </div>
+                    <div>
+                      <span className="text-gray-600 block mb-1 text-xs">
+                        Email:
+                      </span>
+                      <p className="font-medium text-gray-900 break-words">
+                        {detailEmployee.email}
+                      </p>
+                    </div>
+                    <div>
+                      <span className="text-gray-600 block mb-1 text-xs">
+                        No Telp:
+                      </span>
+                      <p className="font-medium text-gray-900 break-words">
+                        {detailEmployee.phone}
+                      </p>
+                    </div>
+                    <div>
+                      <span className="text-gray-600 block mb-1 text-xs">
+                        Golongan Darah:
+                      </span>
+                      <p className="font-medium text-gray-900 break-words">
+                        {detailEmployee.blood_type}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -604,7 +733,7 @@ export const EmployeeList: React.FC<EmployeeListProps> = ({
                                               year: "numeric",
                                               month: "long",
                                               day: "numeric",
-                                            }
+                                            },
                                           )
                                         : "Tanggal tidak tersedia"}
                                     </span>
@@ -622,7 +751,7 @@ export const EmployeeList: React.FC<EmployeeListProps> = ({
                                   <span>
                                     Waktu absensi:{" "}
                                     {new Date(
-                                      training.attendance_date
+                                      training.attendance_date,
                                     ).toLocaleTimeString("id-ID")}
                                   </span>
                                 </div>

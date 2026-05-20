@@ -1,12 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Clock, AlertTriangle, Heart, Users, BookOpen } from "lucide-react";
-
-interface Activity {
-  id: string;
-  type: "attendance" | "health" | "incident" | "employee" | "training" | string;
-  message: string;
-  time: string;
-}
+import { Activity } from "../../types";
 
 export const RecentActivity: React.FC = () => {
   const [activities, setActivities] = useState<Activity[]>([]);
@@ -15,7 +9,7 @@ export const RecentActivity: React.FC = () => {
   const fetchActivities = async () => {
     try {
       const res = await fetch(
-        `${import.meta.env.VITE_API_BASE}/api/activity/recent`
+        `${import.meta.env.VITE_API_BASE}/api/activity/recent`,
       );
       const data = await res.json();
 
