@@ -474,9 +474,9 @@ app.post("/api/employees", async (req, res) => {
     const values = [
       name,
       department,
-      blood_type,
-      email,
-      phone,
+      blood_type || null,
+      email || null,
+      phone || null,
       status || "active",
     ];
     const { rows } = await pools.employees.query(q, values);
@@ -508,9 +508,9 @@ app.put("/api/employees/:id", async (req, res) => {
     const values = [
       name,
       department,
-      blood_type,
-      email,
-      phone,
+      blood_type || null,
+      email || null,
+      phone || null,
       status || "active",
       id,
     ];
