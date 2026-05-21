@@ -458,7 +458,7 @@ app.get("/api/health/stats", async (req, res) => {
 app.get("/api/employees", async (req, res) => {
   try {
     const { rows } = await pools.employees.query(
-      "SELECT * FROM employees ORDER BY created_at ASC LIMIT 500",
+      "SELECT * FROM employees WHERE status = 'active' ORDER BY created_at ASC LIMIT 500",
     );
     res.json(rows);
   } catch (err) {
