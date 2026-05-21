@@ -6,9 +6,9 @@ import Swal from "sweetalert2";
 interface EmployeeFormData {
   name: string;
   department: string;
-  email: string;
-  phone: string;
-  blood_type: string;
+  email: string | null;
+  phone: string | null;
+  blood_type: string | null;
 }
 
 interface EmployeeFormProps {
@@ -25,12 +25,19 @@ export const EmployeeForm: React.FC<EmployeeFormProps> = ({ onSubmit }) => {
 
   const onFormSubmit = async (data: EmployeeFormData) => {
     try {
+      const payload = {
+        ...data,
+        email: data.email || null,
+        phone: data.phone || null,
+        blood_type: data.blood_type || null,
+      };
+
       const res = await fetch(
         `${import.meta.env.VITE_API_BASE}/api/employees`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data),
+          body: JSON.stringify(payload),
         },
       );
 
