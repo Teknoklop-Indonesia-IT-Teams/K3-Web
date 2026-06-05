@@ -161,10 +161,10 @@ export const SafetyReportList: React.FC<SafetyReportListProps> = ({
     return <div className="text-gray-500 p-6">Belum ada laporan insiden.</div>;
 
   const severityColors: Record<string, string> = {
-    low: "bg-green-100 text-green-800",
-    medium: "bg-yellow-100 text-yellow-800",
-    high: "bg-orange-100 text-orange-800",
-    critical: "bg-red-100 text-red-800",
+    low: "bg-green-600 text-white",
+    medium: "bg-yellow-600 text-white",
+    high: "bg-orange-600 text-white",
+    critical: "bg-red-600 text-white",
   };
 
   const statusColors: Record<string, string> = {

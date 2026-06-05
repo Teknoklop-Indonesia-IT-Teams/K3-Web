@@ -34,8 +34,8 @@ export const SafetyReportForm: React.FC<SafetyReportFormProps> = ({
 
   const selectedSeverity = watch("severity");
   const selectedStatus = watch("status");
-  const selectedIncidentType = watch("incident_type");
-  const selectedReporter = watch("reporter_name");
+  watch("incident_type");
+  watch("reporter_name");
 
   useEffect(() => {
     const fetchEmployees = async () => {
