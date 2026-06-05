@@ -27,7 +27,6 @@ export const HealthForm: React.FC<{ onSuccess?: () => void }> = ({
   const [searchTerm, setSearchTerm] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-  // Fetch data karyawan
   useEffect(() => {
     const fetchEmployees = async () => {
       try {
@@ -48,7 +47,6 @@ export const HealthForm: React.FC<{ onSuccess?: () => void }> = ({
     fetchEmployees();
   }, []);
 
-  // Filter employees based on search term
   const filteredEmployees = useMemo(() => {
     if (!searchTerm) return employees;
     return employees.filter(
@@ -77,13 +75,11 @@ export const HealthForm: React.FC<{ onSuccess?: () => void }> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validasi tanda tangan
     if (!signatureData) {
       alert("Tanda tangan diperlukan");
       return;
     }
 
-    // Validasi nama karyawan
     if (!form.employee_name) {
       alert("Nama karyawan wajib dipilih");
       return;
@@ -123,7 +119,6 @@ export const HealthForm: React.FC<{ onSuccess?: () => void }> = ({
         timer: 2000,
         showConfirmButton: false,
       });
-      // Reset form dan tanda tangan
       setForm({
         employee_name: "",
         systolic_pressure: "",
@@ -161,7 +156,6 @@ export const HealthForm: React.FC<{ onSuccess?: () => void }> = ({
       </h3>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Dropdown Nama Karyawan dengan Search */}
         <div className="relative">
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Nama Karyawan
@@ -171,7 +165,6 @@ export const HealthForm: React.FC<{ onSuccess?: () => void }> = ({
             <p className="text-gray-500 text-sm">Memuat daftar karyawan...</p>
           ) : (
             <div className="space-y-2">
-              {/* Custom Dropdown Trigger */}
               <div className="relative">
                 <button
                   type="button"
@@ -192,7 +185,6 @@ export const HealthForm: React.FC<{ onSuccess?: () => void }> = ({
                   )}
                 </button>
 
-                {/* Hidden input untuk form */}
                 <input
                   type="hidden"
                   name="employee_name"
@@ -201,10 +193,8 @@ export const HealthForm: React.FC<{ onSuccess?: () => void }> = ({
                 />
               </div>
 
-              {/* Dropdown Content */}
               {isDropdownOpen && (
                 <div className="absolute top-full left-0 right-0 z-10 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-hidden">
-                  {/* Search Input */}
                   <div className="p-2 border-b border-gray-200">
                     <div className="relative">
                       <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -219,7 +209,6 @@ export const HealthForm: React.FC<{ onSuccess?: () => void }> = ({
                     </div>
                   </div>
 
-                  {/* Employee List */}
                   <div className="overflow-y-auto max-h-48">
                     {filteredEmployees.length === 0 ? (
                       <div className="p-4 text-center text-gray-500 text-sm">
@@ -265,7 +254,6 @@ export const HealthForm: React.FC<{ onSuccess?: () => void }> = ({
           )}
         </div>
 
-        {/* Grid untuk input kesehatan */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -402,7 +390,6 @@ export const HealthForm: React.FC<{ onSuccess?: () => void }> = ({
           />
         </div>
 
-        {/* Tanda Tangan Digital */}
         <div>
           <SignatureCapture
             onSignatureChange={setSignatureData}
@@ -420,7 +407,6 @@ export const HealthForm: React.FC<{ onSuccess?: () => void }> = ({
         </button>
       </form>
 
-      {/* Overlay untuk menutup dropdown ketika klik di luar */}
       {isDropdownOpen && (
         <div
           className="fixed inset-0 z-0"

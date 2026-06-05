@@ -26,15 +26,13 @@ export const Navbar: React.FC = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userData, setUserData] = useState<any>(null);
 
-  // Check screen size untuk menentukan behavior
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     const checkScreenSize = () => {
-      const mobile = window.innerWidth < 1024; // lg breakpoint
+      const mobile = window.innerWidth < 1024;
       setIsMobile(mobile);
 
-      // Auto-close mobile menu ketika resize ke desktop
       if (!mobile && isMobileOpen) {
         setIsMobileOpen(false);
       }
@@ -46,7 +44,6 @@ export const Navbar: React.FC = () => {
     return () => window.removeEventListener("resize", checkScreenSize);
   }, [isMobileOpen]);
 
-  // REAL-TIME SYNC dengan localStorage
   useEffect(() => {
     const checkAuth = () => {
       try {
@@ -74,7 +71,6 @@ export const Navbar: React.FC = () => {
 
     const handleLocationChange = () => {
       checkAuth();
-      // Tutup mobile menu ketika navigasi
       if (isMobile) {
         setIsMobileOpen(false);
       }
@@ -83,7 +79,7 @@ export const Navbar: React.FC = () => {
     window.addEventListener("storage", handleStorageChange);
     window.addEventListener("popstate", handleLocationChange);
 
-    const interval = setInterval(checkAuth, 1000); // Kurangi frekuensi checking
+    const interval = setInterval(checkAuth, 1000);
 
     return () => {
       window.removeEventListener("storage", handleStorageChange);
@@ -140,7 +136,6 @@ export const Navbar: React.FC = () => {
     }
   };
 
-  // Navigation items
   const fullNavigationItems = [
     { path: "/", label: "Dashboard", icon: BarChart3 },
     { path: "/attendance", label: "Absensi", icon: Clock },
@@ -159,7 +154,6 @@ export const Navbar: React.FC = () => {
     ? fullNavigationItems
     : guestNavigationItems;
 
-  // Toggle handlers
   const toggleMobileMenu = () => {
     setIsMobileOpen(!isMobileOpen);
   };
@@ -168,13 +162,11 @@ export const Navbar: React.FC = () => {
     setIsDesktopOpen(!isDesktopOpen);
   };
 
-  // Determine sidebar state based on device
   const isSidebarOpen = isMobile ? isMobileOpen : isDesktopOpen;
   const sidebarWidth = isMobile ? "w-64" : isDesktopOpen ? "w-56" : "w-16";
 
   return (
     <>
-      {/* Mobile Header */}
       {isMobile && (
         <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-white shadow-md border-b border-gray-200 z-50 flex items-center justify-between px-4">
           <div className="flex items-center space-x-3">
@@ -190,12 +182,11 @@ export const Navbar: React.FC = () => {
           </div>
 
           <div className="flex items-center space-x-2">
-            {/* User icon untuk mobile ketika logged in */}
             {isLoggedIn && userData?.name && (
               <div className="hidden sm:flex items-center space-x-2 bg-gray-100 px-2 py-1 rounded-lg">
                 <User className="h-4 w-4 text-gray-600" />
                 <span className="text-xs text-gray-700 truncate max-w-20">
-                  {userData.name.split(" ")[0]} {/* Hanya nama depan */}
+                  {userData.name.split(" ")[0]}
                 </span>
               </div>
             )}
@@ -214,7 +205,6 @@ export const Navbar: React.FC = () => {
         </div>
       )}
 
-      {/* Sidebar */}
       <div
         className={`
           h-screen bg-white shadow-lg border-r border-gray-200 transition-all duration-300 z-40 pt-16 lg:pt-0
@@ -228,7 +218,6 @@ export const Navbar: React.FC = () => {
           ${sidebarWidth}
         `}
       >
-        {/* Desktop Logo & Toggle */}
         {!isMobile && (
           <div className="flex items-center justify-between px-4 py-4 border-b border-gray-200">
             <div className="flex items-center space-x-2">
@@ -253,7 +242,6 @@ export const Navbar: React.FC = () => {
           </div>
         )}
 
-        {/* Desktop Collapsed Header */}
         {!isMobile && !isDesktopOpen && (
           <div className="flex flex-col items-center py-4 border-b border-gray-200">
             <button
@@ -268,7 +256,6 @@ export const Navbar: React.FC = () => {
           </div>
         )}
 
-        {/* User Info - Tampilkan di sidebar ketika terbuka */}
         {isLoggedIn && isSidebarOpen && userData?.name && (
           <div className="mt-4 p-4 bg-gray-50 rounded-lg mx-2 border border-gray-200">
             <div className="flex items-center space-x-3">
@@ -287,7 +274,6 @@ export const Navbar: React.FC = () => {
           </div>
         )}
 
-        {/* User Info Compact - Tampilkan di sidebar collapsed (desktop only) */}
         {!isMobile && !isDesktopOpen && isLoggedIn && userData?.name && (
           <div className="mt-4 p-2 flex justify-center">
             <div
@@ -299,7 +285,6 @@ export const Navbar: React.FC = () => {
           </div>
         )}
 
-        {/* Navigation */}
         <nav className="mt-4 flex flex-col space-y-1 flex-1 pb-20">
           {navigationItems.map((item) => {
             const Icon = item.icon;
@@ -315,7 +300,7 @@ export const Navbar: React.FC = () => {
                     ? "bg-blue-600 text-white shadow-md"
                     : "text-gray-600 hover:bg-blue-50 hover:text-blue-600"
                 }`}
-                title={!isSidebarOpen ? item.label : undefined} // Tooltip ketika collapsed
+                title={!isSidebarOpen ? item.label : undefined}
               >
                 <Icon className="h-5 w-5 flex-shrink-0" />
                 {isSidebarOpen && (
@@ -323,7 +308,6 @@ export const Navbar: React.FC = () => {
                     {item.label}
                   </span>
                 )}
-                {/* Tooltip untuk desktop collapsed */}
                 {!isMobile && !isDesktopOpen && (
                   <div className="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-sm rounded opacity-0 group-hover:opacity-100 transition-opacity z-50 whitespace-nowrap">
                     {item.label}
@@ -334,7 +318,6 @@ export const Navbar: React.FC = () => {
           })}
         </nav>
 
-        {/* Logout Button */}
         {isLoggedIn && (
           <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200 bg-white">
             <button
@@ -346,7 +329,6 @@ export const Navbar: React.FC = () => {
               {isSidebarOpen && (
                 <span className="ml-3 text-sm font-medium">Logout</span>
               )}
-              {/* Tooltip untuk desktop collapsed */}
               {!isMobile && !isDesktopOpen && (
                 <div className="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-sm rounded opacity-0 group-hover:opacity-100 transition-opacity z-50 whitespace-nowrap">
                   Logout
@@ -357,7 +339,6 @@ export const Navbar: React.FC = () => {
         )}
       </div>
 
-      {/* Mobile Overlay */}
       {isMobile && isMobileOpen && (
         <div
           className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-30"

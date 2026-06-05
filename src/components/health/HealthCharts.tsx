@@ -7,7 +7,6 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  LabelList,
 } from "recharts";
 import { HealthChartsProps, HealthCheck } from "../../types";
 
@@ -17,12 +16,11 @@ export const HealthCharts: React.FC<HealthChartsProps> = ({
   const [rawData, setRawData] = useState<HealthCheck[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const [metric, setMetric] = useState("all"); // all | bp | sugar | cholesterol
-  const [mode, setMode] = useState("all"); // all | highest | lowest
+  const [metric, setMetric] = useState("all");
+  const [mode, setMode] = useState("all");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
-  // ✅ state untuk pagination
   const [page, setPage] = useState(1);
   const pageSize = 10;
 
@@ -44,7 +42,6 @@ export const HealthCharts: React.FC<HealthChartsProps> = ({
     fetchChecks();
   }, [refreshTrigger]);
 
-  // filter by nama
   const filtered = rawData.filter((row) => {
     const matchName = row.employee_name
       ?.toLowerCase()
@@ -61,7 +58,6 @@ export const HealthCharts: React.FC<HealthChartsProps> = ({
     return matchName && matchStart && matchEnd;
   });
 
-  // ✅ normalisasi field
   const normalized = filtered.map((row) => ({
     date: new Date(row.measured_at).toLocaleString("id-ID", {
       day: "2-digit",
@@ -77,7 +73,6 @@ export const HealthCharts: React.FC<HealthChartsProps> = ({
     raw: row,
   }));
 
-  // summary data untuk highest/lowest
   const getSummary = () => {
     const grouped: Record<string, typeof normalized> = {};
     normalized.forEach((row) => {
@@ -155,7 +150,6 @@ export const HealthCharts: React.FC<HealthChartsProps> = ({
 
   const summaryData = getSummary();
 
-  // ✅ pagination summary data
   const totalPages = Math.ceil(summaryData.length / pageSize);
   const paginatedData = summaryData.slice(
     (page - 1) * pageSize,
@@ -166,7 +160,6 @@ export const HealthCharts: React.FC<HealthChartsProps> = ({
   if (rawData.length === 0)
     return <p className="text-gray-500">Belum ada data grafik</p>;
 
-  // tooltip custom
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
@@ -346,7 +339,6 @@ export const HealthCharts: React.FC<HealthChartsProps> = ({
             </tbody>
           </table>
 
-          {/* Pagination */}
           {totalPages > 1 && (
             <div className="flex justify-center items-center mt-4 space-x-1">
               {Array.from({ length: totalPages }, (_, i) => i + 1).map(

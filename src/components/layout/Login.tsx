@@ -1,4 +1,3 @@
-// Login.tsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -33,25 +32,22 @@ export const Login: React.FC = () => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({ username, password }),
-        }
+        },
       );
 
       const data = await response.json();
 
       if (data.success) {
-        // Simpan data ke localStorage DULU
         localStorage.setItem("isLoggedIn", "true");
         localStorage.setItem("user", JSON.stringify(data.user));
         localStorage.setItem("token", data.token);
 
-        // Tunggu 2 detik untuk loading animation
         setTimeout(() => {
           setShowLoading(false);
           setLoading(false);
 
-          // Navigate dan refresh SEKALIGUS
           navigate("/", { replace: true });
-          window.location.reload(); // Langsung reload, tidak perlu setTimeout lagi
+          window.location.reload();
         }, 2000);
       } else {
         setShowLoading(false);
@@ -66,15 +62,11 @@ export const Login: React.FC = () => {
     }
   };
 
-  // Loading Animation dengan tema putih
   const LoadingAnimation = () => (
     <div className="fixed inset-0 bg-white flex items-center justify-center z-50">
-      {/* Background Effects */}
       <div className="absolute inset-0 overflow-hidden">
-        {/* Animated Grid */}
         <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_48%,rgba(59,130,246,0.03)_50%,transparent_52%)] bg-[length:60px_60px] animate-grid-move"></div>
 
-        {/* Floating Particles */}
         {[...Array(20)].map((_, i) => (
           <div
             key={i}
@@ -82,10 +74,10 @@ export const Login: React.FC = () => {
               i % 4 === 0
                 ? "bg-blue-200"
                 : i % 4 === 1
-                ? "bg-slate-200"
-                : i % 4 === 2
-                ? "bg-amber-200"
-                : "bg-gray-200"
+                  ? "bg-slate-200"
+                  : i % 4 === 2
+                    ? "bg-amber-200"
+                    : "bg-gray-200"
             }`}
             style={{
               left: `${Math.random() * 100}%`,
@@ -98,91 +90,66 @@ export const Login: React.FC = () => {
       </div>
 
       <div className="text-center relative z-10">
-        {/* Main Puzzle K3 Animation */}
         <div className="relative mb-20">
-          {/* Connection Lines */}
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-1 bg-gradient-to-r from-transparent via-blue-400 to-transparent opacity-50 animate-pulse-connection"></div>
 
           <div className="flex justify-center items-center space-x-16 mb-16">
-            {/* Huruf K - Puzzle Pieces */}
             <div className="relative">
-              {/* Glow Effect */}
               <div className="absolute inset-0 bg-blue-100 rounded-2xl blur-xl opacity-50 animate-pulse-slow"></div>
 
-              {/* Puzzle Container untuk K */}
               <div className="relative w-40 h-40">
-                {/* Background Outline */}
                 <div className="absolute inset-0 border-4 border-dashed border-blue-100 rounded-2xl animate-pulse-very-slow"></div>
 
-                {/* Piece 1 - Top Left */}
                 <div className="absolute top-0 left-0 w-20 h-20 bg-gradient-to-br from-blue-500 to-blue-600 rounded-tl-2xl animate-puzzle-assemble-k1 shadow-lg border-2 border-blue-400"></div>
 
-                {/* Piece 2 - Top Right */}
                 <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-bl from-blue-600 to-blue-700 rounded-tr-2xl animate-puzzle-assemble-k2 shadow-lg border-2 border-blue-500"></div>
 
-                {/* Piece 3 - Middle Left */}
                 <div className="absolute top-10 left-0 w-16 h-20 bg-gradient-to-b from-blue-400 to-blue-500 rounded-bl-2xl animate-puzzle-assemble-k3 shadow-lg border-2 border-blue-300"></div>
 
-                {/* Piece 4 - Bottom Right */}
                 <div className="absolute bottom-0 right-5 w-16 h-20 bg-gradient-to-t from-blue-700 to-blue-800 rounded-br-2xl animate-puzzle-assemble-k4 shadow-lg border-2 border-blue-600"></div>
 
-                {/* Connection Points */}
                 <div className="absolute top-10 left-20 w-3 h-3 bg-amber-400 rounded-full animate-ping-slow shadow-lg"></div>
                 <div className="absolute bottom-10 right-5 w-3 h-3 bg-amber-400 rounded-full animate-ping-slow-delay shadow-lg"></div>
               </div>
 
-              {/* Animated K Text */}
               <div className="absolute inset-0 flex items-center justify-center">
                 <span className="text-5xl font-black text-white animate-bounce-slow z-20 drop-shadow-2xl">
                   K
                 </span>
               </div>
 
-              {/* Sparkle Effects */}
               <Sparkles className="absolute -top-2 -right-2 h-6 w-6 text-amber-400 animate-sparkle-slow" />
               <Sparkles className="absolute -bottom-2 -left-2 h-4 w-4 text-blue-400 animate-sparkle-slow-delay" />
             </div>
 
-            {/* Angka 3 - Puzzle Pieces */}
             <div className="relative">
-              {/* Glow Effect */}
               <div className="absolute inset-0 bg-slate-100 rounded-2xl blur-xl opacity-50 animate-pulse-slow-delay"></div>
 
-              {/* Puzzle Container untuk 3 */}
               <div className="relative w-40 h-40">
-                {/* Background Outline */}
                 <div className="absolute inset-0 border-4 border-dashed border-slate-100 rounded-2xl animate-pulse-very-slow"></div>
 
-                {/* Piece 1 - Top Curve */}
                 <div className="absolute top-0 left-5 w-30 h-20 bg-gradient-to-b from-slate-600 to-slate-700 rounded-t-2xl animate-puzzle-assemble-31 shadow-lg border-2 border-slate-500"></div>
 
-                {/* Piece 2 - Middle */}
                 <div className="absolute top-8 left-10 w-20 h-10 bg-gradient-to-r from-slate-500 to-slate-600 animate-puzzle-assemble-32 shadow-lg border-2 border-slate-400"></div>
 
-                {/* Piece 3 - Bottom Curve */}
                 <div className="absolute bottom-0 left-5 w-30 h-20 bg-gradient-to-t from-slate-700 to-slate-800 rounded-b-2xl animate-puzzle-assemble-33 shadow-lg border-2 border-slate-600"></div>
 
-                {/* Piece 4 - Inner Curve Top */}
                 <div className="absolute top-5 left-15 w-10 h-10 bg-gradient-to-br from-slate-400 to-slate-500 rounded-full animate-puzzle-assemble-34 shadow-lg border-2 border-slate-300"></div>
 
-                {/* Piece 5 - Inner Curve Bottom */}
                 <div className="absolute bottom-5 left-15 w-10 h-10 bg-gradient-to-tr from-slate-800 to-slate-900 rounded-full animate-puzzle-assemble-35 shadow-lg border-2 border-slate-700"></div>
               </div>
 
-              {/* Animated 3 Text */}
               <div className="absolute inset-0 flex items-center justify-center">
                 <span className="text-5xl font-black text-white animate-bounce-slow-delay z-20 drop-shadow-2xl">
                   3
                 </span>
               </div>
 
-              {/* Sparkle Effects */}
               <Sparkles className="absolute -top-2 -left-2 h-5 w-5 text-amber-400 animate-sparkle-slow-delay-2" />
               <Sparkles className="absolute -bottom-2 -right-2 h-6 w-6 text-slate-400 animate-sparkle-slow" />
             </div>
           </div>
 
-          {/* Central Connection Animation */}
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
             <div className="flex space-x-3">
               <div className="w-4 h-4 bg-blue-400 rounded-full animate-ping-slow shadow-lg"></div>
@@ -193,7 +160,6 @@ export const Login: React.FC = () => {
           </div>
         </div>
 
-        {/* TEKNOKLOP Text */}
         <div className="mb-16">
           <h2 className="text-6xl font-black mb-8">
             <span className="animate-tekno-enhanced bg-gradient-to-r from-blue-600 via-slate-600 to-amber-600 bg-clip-text text-transparent">
@@ -204,7 +170,6 @@ export const Login: React.FC = () => {
             </span>
           </h2>
 
-          {/* Puzzle Piece Underline */}
           <div className="flex justify-center space-x-2 mb-4">
             {[...Array(12)].map((_, i) => (
               <div
@@ -213,23 +178,20 @@ export const Login: React.FC = () => {
                   i % 3 === 0
                     ? "bg-blue-500"
                     : i % 3 === 1
-                    ? "bg-slate-500"
-                    : "bg-amber-500"
+                      ? "bg-slate-500"
+                      : "bg-amber-500"
                 }`}
                 style={{ animationDelay: `${i * 0.2}s` }}
               />
             ))}
           </div>
 
-          {/* Subtitle */}
           <p className="text-gray-600 text-lg font-medium animate-fade-in-delayed">
             WEBSITE MANAGEMENT K3 TEKNOKLOP
           </p>
         </div>
 
-        {/* Loading Animation */}
         <div className="flex flex-col items-center space-y-10">
-          {/* 3D Puzzle Piece Loading */}
           <div className="flex space-x-4">
             {[...Array(7)].map((_, i) => (
               <div
@@ -238,10 +200,10 @@ export const Login: React.FC = () => {
                   i % 4 === 0
                     ? "bg-blue-500 border-blue-400"
                     : i % 4 === 1
-                    ? "bg-slate-500 border-slate-400"
-                    : i % 4 === 2
-                    ? "bg-amber-500 border-amber-400"
-                    : "bg-gray-500 border-gray-400"
+                      ? "bg-slate-500 border-slate-400"
+                      : i % 4 === 2
+                        ? "bg-amber-500 border-amber-400"
+                        : "bg-gray-500 border-gray-400"
                 }`}
                 style={{
                   animationDelay: `${i * 0.4}s`,
@@ -252,10 +214,8 @@ export const Login: React.FC = () => {
             ))}
           </div>
 
-          {/* Progress Bar dengan Puzzle Style */}
           <div className="w-120 h-4 bg-gray-100 rounded-full overflow-hidden relative shadow-inner">
             <div className="h-full bg-gradient-to-r from-blue-500 via-slate-500 to-amber-500 rounded-full animate-progress-puzzle-enhanced relative">
-              {/* Puzzle Notches */}
               {[...Array(5)].map((_, i) => (
                 <div
                   key={i}
@@ -264,11 +224,9 @@ export const Login: React.FC = () => {
                 />
               ))}
 
-              {/* Moving Highlight */}
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent animate-shine"></div>
             </div>
 
-            {/* Progress Text */}
             <div className="absolute inset-0 flex items-center justify-center">
               <span className="text-xs font-bold text-gray-700 animate-pulse-slow">
                 MEMUAT SISTEM...
@@ -276,7 +234,6 @@ export const Login: React.FC = () => {
             </div>
           </div>
 
-          {/* Loading Text */}
           <div className="text-gray-700 text-xl font-semibold">
             <div className="flex items-center justify-center space-x-3">
               <Puzzle className="h-7 w-7 text-blue-500 animate-bounce-rotate" />
@@ -288,7 +245,6 @@ export const Login: React.FC = () => {
           </div>
         </div>
 
-        {/* Safety Messages dengan Icons */}
         <div className="mt-16 grid grid-cols-4 gap-8 text-sm text-gray-600">
           {[
             { icon: Shield, color: "blue", text: "Keamanan", delay: "0.8s" },
@@ -326,9 +282,7 @@ export const Login: React.FC = () => {
       {showLoading && <LoadingAnimation />}
 
       <div className="min-h-screen flex items-center justify-center bg-white">
-        {/* Background Puzzle Decoration */}
         <div className="absolute inset-0 overflow-hidden opacity-5">
-          {/* Animated Floating Puzzle Pieces */}
           {[...Array(25)].map((_, i) => (
             <div
               key={i}
@@ -336,10 +290,10 @@ export const Login: React.FC = () => {
                 i % 4 === 0
                   ? "bg-blue-100 border-blue-200"
                   : i % 4 === 1
-                  ? "bg-slate-100 border-slate-200"
-                  : i % 4 === 2
-                  ? "bg-amber-100 border-amber-200"
-                  : "bg-gray-100 border-gray-200"
+                    ? "bg-slate-100 border-slate-200"
+                    : i % 4 === 2
+                      ? "bg-amber-100 border-amber-200"
+                      : "bg-gray-100 border-gray-200"
               }`}
               style={{
                 left: `${Math.random() * 100}%`,
@@ -351,16 +305,12 @@ export const Login: React.FC = () => {
           ))}
         </div>
 
-        {/* Main Container */}
         <div className="bg-white border border-gray-200 rounded-3xl shadow-xl w-full max-w-md mx-4 overflow-hidden relative z-10">
-          {/* Header dengan Theme Putih */}
           <div className="bg-gradient-to-r from-blue-500 via-slate-600 to-amber-500 p-8 text-center relative overflow-hidden">
-            {/* Puzzle Pattern Background */}
             <div className="absolute inset-0 opacity-10">
               <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_45%,rgba(255,255,255,0.4)_50%,transparent_55%)] bg-[length:50px_50px] animate-grid-move-slow"></div>
             </div>
 
-            {/* Animated Border */}
             <div className="absolute inset-0 border-4 border-transparent bg-gradient-to-r from-blue-400 via-slate-500 to-amber-400 rounded-3xl opacity-30 animate-border-rotate"></div>
 
             <div className="relative">
@@ -386,10 +336,8 @@ export const Login: React.FC = () => {
             </div>
           </div>
 
-          {/* Login Form */}
           <div className="p-8">
             <form onSubmit={handleLogin}>
-              {/* Username Field */}
               <div className="mb-6">
                 <label className="block text-sm font-semibold text-gray-700 mb-3">
                   <User className="h-4 w-4 inline mr-2 text-blue-500 animate-pulse-slow" />
@@ -413,7 +361,6 @@ export const Login: React.FC = () => {
                 </div>
               </div>
 
-              {/* Password Field */}
               <div className="mb-8">
                 <label className="block text-sm font-semibold text-gray-700 mb-3">
                   <Lock className="h-4 w-4 inline mr-2 text-slate-500 animate-pulse-slow-delay" />
@@ -437,7 +384,6 @@ export const Login: React.FC = () => {
                 </div>
               </div>
 
-              {/* Login Button */}
               <button
                 type="submit"
                 disabled={loading}
@@ -461,7 +407,6 @@ export const Login: React.FC = () => {
               </button>
             </form>
 
-            {/* Footer */}
             <div className="mt-8 pt-6 border-t border-gray-200">
               <div className="text-center">
                 <p className="text-gray-600 text-sm font-semibold">
@@ -478,7 +423,6 @@ export const Login: React.FC = () => {
         </div>
       </div>
 
-      {/* CSS animations */}
       <style>{`
         /* Grid Animation */
         @keyframes grid-move {

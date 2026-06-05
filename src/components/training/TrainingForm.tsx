@@ -4,7 +4,6 @@ import { BookOpen, Calendar, Image as ImageIcon } from "lucide-react";
 import { TrainingFormData } from "../../types";
 import Swal from "sweetalert2";
 
-// ================= Utility import.meta.env.VITE_API_BASE =================
 export async function fetchFormData<T = any>(
   url: string,
   formData: FormData,
@@ -18,13 +17,10 @@ export async function fetchFormData<T = any>(
   return res.json() as Promise<T>;
 }
 
-// ================= Types =================
-
 interface TrainingFormProps {
   onSubmit: () => void;
 }
 
-// ================= Component =================
 export const TrainingForm: React.FC<TrainingFormProps> = ({ onSubmit }) => {
   const { register, handleSubmit, reset } = useForm<TrainingFormData>();
 
@@ -130,7 +126,7 @@ export const TrainingForm: React.FC<TrainingFormProps> = ({ onSubmit }) => {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
+          <label className="block text-sm font-medium text-gray-700 mb-2 items-center">
             <ImageIcon className="h-5 w-5 mr-2 text-gray-400" /> Dokumentasi
             (opsional)
           </label>

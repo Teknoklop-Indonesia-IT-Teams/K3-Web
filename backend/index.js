@@ -37,7 +37,6 @@ const pools = {
   users: pool,
 };
 
-// ====== UPLOAD (multer) CONFIG ======
 const uploadDir = path.join(__dirname, "uploads", "trainings");
 fs.mkdirSync(uploadDir, { recursive: true });
 
@@ -62,7 +61,7 @@ const fileFilter = (req, file, cb) => {
     "image/webp",
     "image/heic",
     "image/heif",
-    "application/pdf", // 🔥 TAMBAHKAN PDF
+    "application/pdf",
     "application/msword",
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
   ];
@@ -79,14 +78,11 @@ const fileFilter = (req, file, cb) => {
 
 const upload = multer({ storage, fileFilter });
 
-// Serve static uploads
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // ==========================================================
 // ======================== AUTH ============================
 // ==========================================================
-
-// POST: Login
 app.post("/api/auth/login", async (req, res) => {
   try {
     const { username, password } = req.body;
@@ -97,7 +93,6 @@ app.post("/api/auth/login", async (req, res) => {
         .json({ error: "Username dan password wajib diisi" });
     }
 
-    // 🔍 Cek user di database
     const result = await pool.query(
       "SELECT username, password, role, name FROM users WHERE username = $1",
       [username],
@@ -109,12 +104,10 @@ app.post("/api/auth/login", async (req, res) => {
 
     const user = result.rows[0];
 
-    // 🔑 Cek password (untuk sekarang plain text)
     if (user.password !== password) {
       return res.status(401).json({ error: "Username atau password salah" });
     }
 
-    // 🔐 Generate token simple
     const token = Buffer.from(`${username}:${Date.now()}`).toString("base64");
 
     res.json({
@@ -132,7 +125,6 @@ app.post("/api/auth/login", async (req, res) => {
   }
 });
 
-// POST: Logout
 app.post("/api/auth/logout", async (req, res) => {
   try {
     res.json({ success: true, message: "Logout berhasil" });
@@ -142,7 +134,6 @@ app.post("/api/auth/logout", async (req, res) => {
   }
 });
 
-// GET: Check auth status
 app.get("/api/auth/check", async (req, res) => {
   try {
     const token = req.headers.authorization?.replace("Bearer ", "");
@@ -195,8 +186,6 @@ app.get("/api/auth/check", async (req, res) => {
 // ==========================================================
 // ====================== ATTENDANCE ========================
 // ==========================================================
-
-// GET: list pelatihan + jumlah peserta unik
 app.get("/api/attendance/list", async (req, res) => {
   try {
     const { rows } = await pools.training.query(`
@@ -216,7 +205,6 @@ app.get("/api/attendance/list", async (req, res) => {
   }
 });
 
-// POST: submit attendance
 app.post("/api/training-attendance", async (req, res) => {
   try {
     const { training_id, participant_name, notes, signature } = req.body;
@@ -241,7 +229,6 @@ app.post("/api/training-attendance", async (req, res) => {
   }
 });
 
-// GET: absensi terbaru (50 terakhir)
 app.get("/api/attendance/recent", async (req, res) => {
   try {
     const { rows } = await pools.training.query(`
@@ -257,7 +244,6 @@ app.get("/api/attendance/recent", async (req, res) => {
   }
 });
 
-// GET: semua absensi
 app.get("/api/attendance", async (req, res) => {
   try {
     const { rows } = await pools.training.query(`
@@ -272,7 +258,6 @@ app.get("/api/attendance", async (req, res) => {
   }
 });
 
-// GET: statistik absensi
 app.get("/api/attendance/stats", async (req, res) => {
   try {
     const today = new Date();
@@ -333,7 +318,6 @@ app.get("/api/attendance/stats", async (req, res) => {
   }
 });
 
-// GET: peserta per pelatihan
 app.get("/api/attendance/:trainingId/participants", async (req, res) => {
   try {
     const { trainingId } = req.params;
@@ -487,7 +471,6 @@ app.post("/api/employees", async (req, res) => {
   }
 });
 
-// EDIT KARYAWAN
 app.put("/api/employees/:id", async (req, res) => {
   try {
     const { id } = req.params;
@@ -527,7 +510,6 @@ app.put("/api/employees/:id", async (req, res) => {
   }
 });
 
-// HAPUS KARYAWAN
 app.delete("/api/employees/:id", async (req, res) => {
   try {
     const { id } = req.params;
@@ -546,7 +528,6 @@ app.delete("/api/employees/:id", async (req, res) => {
   }
 });
 
-// ENDPOINT BARU: RIWAYAT LENGKAP KARYAWAN (HADIR + TIDAK HADIR)
 app.get("/api/employees/:employeeName/training-history", async (req, res) => {
   try {
     const { employeeName } = req.params;
@@ -578,7 +559,6 @@ app.get("/api/employees/:employeeName/training-history", async (req, res) => {
   }
 });
 
-// ENDPOINT LAMA: HANYA ABSENSI YANG ADA
 app.get("/api/training-attendance", async (req, res) => {
   try {
     const { participant } = req.query;
@@ -632,7 +612,6 @@ app.get("/api/employees/stats", async (req, res) => {
 // ==========================================================
 // ======================== SAFETY ==========================
 // ==========================================================
-// GET all reports
 app.get("/api/safety/reports", async (req, res) => {
   try {
     const { rows } = await pools.safety.query(`
@@ -648,7 +627,6 @@ app.get("/api/safety/reports", async (req, res) => {
   }
 });
 
-// POST new report
 app.post("/api/safety/reports", async (req, res) => {
   try {
     const {
@@ -693,7 +671,6 @@ app.post("/api/safety/reports", async (req, res) => {
   }
 });
 
-// PUT update status
 app.put("/api/safety/reports/:id/status", async (req, res) => {
   try {
     const { id } = req.params;
@@ -730,7 +707,7 @@ app.put("/api/safety/reports/:id/status", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-// Delete reports
+
 app.delete("/api/safety/reports/:id", async (req, res) => {
   try {
     const { id } = req.params;
@@ -749,7 +726,6 @@ app.delete("/api/safety/reports/:id", async (req, res) => {
   }
 });
 
-// GET stats
 app.get("/api/safety/reports/stats", async (req, res) => {
   try {
     const q = `
@@ -962,11 +938,9 @@ app.get("/api/activity/recent", async (req, res) => {
   }
 });
 
-// Pastikan di atas semua route, sebelum app.listen
 const publicDir = path.join(__dirname, "public");
 fs.mkdirSync(publicDir, { recursive: true });
 
-// Serve semua file di public secara statik
 app.use("/template.png", express.static(path.join(publicDir, "template.png")));
 
 // ====== START SERVER ======

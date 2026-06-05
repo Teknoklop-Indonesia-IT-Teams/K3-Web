@@ -1,13 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
-import {
-  AlertTriangle,
-  MapPin,
-  Clock,
-  User,
-  Search,
-  Users,
-} from "lucide-react";
+import { AlertTriangle, MapPin, Clock, User, Search } from "lucide-react";
 import { Employee, SafetyReportFormData } from "../../types";
 import Swal from "sweetalert2";
 
@@ -44,7 +37,6 @@ export const SafetyReportForm: React.FC<SafetyReportFormProps> = ({
   const selectedIncidentType = watch("incident_type");
   const selectedReporter = watch("reporter_name");
 
-  // Fetch data karyawan untuk dropdown
   useEffect(() => {
     const fetchEmployees = async () => {
       try {
@@ -61,7 +53,6 @@ export const SafetyReportForm: React.FC<SafetyReportFormProps> = ({
     fetchEmployees();
   }, []);
 
-  // Filter karyawan berdasarkan pencarian
   useEffect(() => {
     if (employeeSearch) {
       const filtered = employees.filter((emp) =>
@@ -119,7 +110,6 @@ export const SafetyReportForm: React.FC<SafetyReportFormProps> = ({
       const saved = await res.json();
       console.log("✅ Laporan tersimpan:", saved);
 
-      // Sweet Alert Success
       await Swal.fire({
         icon: "success",
         title: "Berhasil!",
@@ -150,7 +140,6 @@ export const SafetyReportForm: React.FC<SafetyReportFormProps> = ({
     } catch (err: any) {
       console.error("❌ Gagal simpan laporan:", err);
 
-      // Sweet Alert Error
       Swal.fire({
         icon: "error",
         title: "Gagal Menyimpan",
@@ -161,7 +150,6 @@ export const SafetyReportForm: React.FC<SafetyReportFormProps> = ({
     }
   };
 
-  // Handler untuk memilih karyawan dari dropdown
   const handleEmployeeSelect = (employee: Employee) => {
     setValue("reporter_name", employee.name);
     setEmployeeSearch(employee.name);
@@ -201,7 +189,6 @@ export const SafetyReportForm: React.FC<SafetyReportFormProps> = ({
           )}
         </div>
 
-        {/* Jenis Insiden - DIPERBAIKI */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Jenis Insiden
@@ -230,7 +217,6 @@ export const SafetyReportForm: React.FC<SafetyReportFormProps> = ({
           )}
         </div>
 
-        {/* Severity */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Tingkat Keparahan
@@ -286,7 +272,6 @@ export const SafetyReportForm: React.FC<SafetyReportFormProps> = ({
           )}
         </div>
 
-        {/* Status */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Status Insiden
@@ -333,7 +318,6 @@ export const SafetyReportForm: React.FC<SafetyReportFormProps> = ({
           )}
         </div>
 
-        {/* Lokasi */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Lokasi Insiden
@@ -348,7 +332,6 @@ export const SafetyReportForm: React.FC<SafetyReportFormProps> = ({
           </div>
         </div>
 
-        {/* Tanggal & Waktu */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -389,7 +372,6 @@ export const SafetyReportForm: React.FC<SafetyReportFormProps> = ({
           </div>
         </div>
 
-        {/* Deskripsi */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Deskripsi Insiden
@@ -407,7 +389,6 @@ export const SafetyReportForm: React.FC<SafetyReportFormProps> = ({
           )}
         </div>
 
-        {/* Pelapor dengan Dropdown Search */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Nama Pelapor
@@ -424,7 +405,6 @@ export const SafetyReportForm: React.FC<SafetyReportFormProps> = ({
             />
             <Search className="absolute right-3 top-3 h-5 w-5 text-gray-400" />
 
-            {/* Dropdown Karyawan */}
             {showEmployeeDropdown && filteredEmployees.length > 0 && (
               <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
                 {filteredEmployees.map((employee) => (
@@ -455,7 +435,6 @@ export const SafetyReportForm: React.FC<SafetyReportFormProps> = ({
           )}
         </div>
 
-        {/* Saksi */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Nama Saksi (Opsional)
@@ -466,8 +445,6 @@ export const SafetyReportForm: React.FC<SafetyReportFormProps> = ({
             className="w-full rounded-lg border-gray-300 border px-4 py-3"
           />
         </div>
-
-        {/* Tindakan Segera */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Langkah Tindakan Segera (Opsional)
@@ -479,8 +456,6 @@ export const SafetyReportForm: React.FC<SafetyReportFormProps> = ({
             className="w-full rounded-lg border-gray-300 border px-4 py-3 resize-none"
           />
         </div>
-
-        {/* Submit */}
         <button
           type="submit"
           className="w-full bg-red-600 text-white py-3 px-6 rounded-lg hover:bg-red-700 transition font-medium"

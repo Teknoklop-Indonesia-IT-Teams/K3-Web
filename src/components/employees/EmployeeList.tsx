@@ -38,7 +38,6 @@ export const EmployeeList: React.FC<EmployeeListProps> = ({
 
   const employeesPerPage = 5;
 
-  // 🔥 TAMBAHAN: Daftar departemen yang sama dengan EmployeeForm
   const departments = [
     { value: "Direktur", label: "Direktur" },
     { value: "Lab", label: "Laboratorium" },
@@ -354,7 +353,6 @@ export const EmployeeList: React.FC<EmployeeListProps> = ({
   return (
     <>
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
-        {/* Header Section */}
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
           <div className="flex items-center">
             <User className="h-5 w-5 mr-2 text-blue-600 flex-shrink-0" />
@@ -364,7 +362,6 @@ export const EmployeeList: React.FC<EmployeeListProps> = ({
           </div>
 
           <div className="flex flex-col xs:flex-row gap-3 items-start xs:items-center justify-between xs:justify-end">
-            {/* Search Input */}
             <div className="relative w-full xs:w-64">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
               <input
@@ -384,7 +381,6 @@ export const EmployeeList: React.FC<EmployeeListProps> = ({
           </div>
         </div>
 
-        {/* Employee List */}
         <div className="space-y-3">
           {visibleEmployees.length === 0 ? (
             <div className="text-center py-12 border-2 border-dashed border-gray-300 rounded-lg">
@@ -433,7 +429,6 @@ export const EmployeeList: React.FC<EmployeeListProps> = ({
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         Divisi
                       </label>
-                      {/* 🔥 PERBAIKAN: Ubah input text menjadi dropdown */}
                       <select
                         value={editForm.department}
                         onChange={(e) =>
@@ -543,7 +538,6 @@ export const EmployeeList: React.FC<EmployeeListProps> = ({
                         {employee.name}
                       </div>
                       <div className="text-sm text-gray-600 truncate">
-                        {/* 🔥 PERBAIKAN: Tampilkan label yang sesuai dengan value */}
                         {departments.find(
                           (dept) => dept.value === employee.department,
                         )?.label || employee.department}
@@ -665,7 +659,6 @@ export const EmployeeList: React.FC<EmployeeListProps> = ({
         )}
       </div>
 
-      {/* Employee Detail Modal */}
       {detailEmployee && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-2 sm:p-4 z-50">
           <div className="bg-white rounded-xl shadow-lg w-full max-w-2xl max-h-[95vh] overflow-y-auto">
@@ -683,7 +676,6 @@ export const EmployeeList: React.FC<EmployeeListProps> = ({
               </div>
 
               <div className="space-y-6">
-                {/* Employee Information */}
                 <div className="bg-gray-50 rounded-lg p-4">
                   <h4 className="font-medium text-gray-900 mb-3 flex items-center">
                     <User className="h-5 w-5 mr-2 text-blue-600 flex-shrink-0" />
@@ -703,7 +695,6 @@ export const EmployeeList: React.FC<EmployeeListProps> = ({
                         Divisi/Department:
                       </span>
                       <p className="font-medium text-gray-900 break-words">
-                        {/* 🔥 PERBAIKAN: Tampilkan label yang sesuai dengan value */}
                         {departments.find(
                           (dept) => dept.value === detailEmployee.department,
                         )?.label || detailEmployee.department}

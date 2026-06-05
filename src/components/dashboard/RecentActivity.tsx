@@ -13,7 +13,6 @@ export const RecentActivity: React.FC = () => {
       );
       const data = await res.json();
 
-      // safety: ensure array
       if (Array.isArray(data)) {
         setActivities(data.slice(0, 5));
       } else {
@@ -28,15 +27,13 @@ export const RecentActivity: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchActivities(); // fetch pertama kali
+    fetchActivities();
 
-    // auto-refresh tiap 10 detik
     const interval = setInterval(fetchActivities, 10000);
 
-    return () => clearInterval(interval); // bersihkan interval saat unmount
+    return () => clearInterval(interval);
   }, []);
 
-  // Loading state
   if (loading) {
     return (
       <div className="space-y-3">
@@ -56,7 +53,6 @@ export const RecentActivity: React.FC = () => {
     );
   }
 
-  // Empty state
   if (!activities.length) {
     return (
       <div className="text-center py-8 text-gray-500">

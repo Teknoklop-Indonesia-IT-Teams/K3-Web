@@ -47,7 +47,6 @@ export const EmployeeForm: React.FC<EmployeeFormProps> = ({ onSubmit }) => {
 
       const newEmployee = await res.json();
 
-      // Success notification
       await Swal.fire({
         icon: "success",
         title: "Berhasil!",
@@ -62,7 +61,6 @@ export const EmployeeForm: React.FC<EmployeeFormProps> = ({ onSubmit }) => {
     } catch (err) {
       console.error("Error:", err);
 
-      // Error notification
       Swal.fire({
         icon: "error",
         title: "Gagal!",

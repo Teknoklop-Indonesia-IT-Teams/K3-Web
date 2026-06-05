@@ -29,7 +29,6 @@ export const HealthStats: React.FC<HealthStatsProps> = ({ refreshTrigger }) => {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      {/* Tekanan darah */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
         <div className="flex items-center justify-between">
           <div>
@@ -46,7 +45,6 @@ export const HealthStats: React.FC<HealthStatsProps> = ({ refreshTrigger }) => {
         </div>
       </div>
 
-      {/* Detak jantung */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
         <div className="flex items-center justify-between">
           <div>
@@ -63,7 +61,6 @@ export const HealthStats: React.FC<HealthStatsProps> = ({ refreshTrigger }) => {
         </div>
       </div>
 
-      {/* Suhu tubuh */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
         <div className="flex items-center justify-between">
           <div>
@@ -80,7 +77,6 @@ export const HealthStats: React.FC<HealthStatsProps> = ({ refreshTrigger }) => {
         </div>
       </div>
 
-      {/* Total checkup bulan ini */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
         <div className="flex items-center justify-between">
           <div>

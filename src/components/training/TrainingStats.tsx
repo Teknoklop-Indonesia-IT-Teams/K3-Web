@@ -28,7 +28,6 @@ export const TrainingStats: React.FC<TrainingStatsProps> = ({
     loadTrainings();
   }, [refreshTrigger]);
 
-  // ==== Hitung statistik bulan ini ====
   const now = new Date();
   const month = now.getMonth();
   const year = now.getFullYear();
@@ -44,14 +43,13 @@ export const TrainingStats: React.FC<TrainingStatsProps> = ({
     (sum, t) => sum + Number(t.duration_hours),
     0,
   );
-  const totalParticipants = 22; // sementara dummy
+  const totalParticipants = 22;
 
   if (loading) return <div>⏳ Memuat statistik...</div>;
   if (error) return <div className="text-red-500">⚠ {error}</div>;
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      {/* Pelatihan Bulan Ini */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
         <div className="flex items-center justify-between">
           <div>
@@ -67,7 +65,6 @@ export const TrainingStats: React.FC<TrainingStatsProps> = ({
         </div>
       </div>
 
-      {/* Materi Disampaikan */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
         <div className="flex items-center justify-between">
           <div>
@@ -83,7 +80,6 @@ export const TrainingStats: React.FC<TrainingStatsProps> = ({
         </div>
       </div>
 
-      {/* Total Jam */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
         <div className="flex items-center justify-between">
           <div>
@@ -99,7 +95,6 @@ export const TrainingStats: React.FC<TrainingStatsProps> = ({
         </div>
       </div>
 
-      {/* Jumlah Peserta (dummy) */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
         <div className="flex items-center justify-between">
           <div>

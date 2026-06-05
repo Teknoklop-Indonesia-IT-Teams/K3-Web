@@ -77,7 +77,6 @@ export const SafetyReportList: React.FC<SafetyReportListProps> = ({
         body: JSON.stringify(body),
       });
 
-      // Success Alert
       await Swal.fire({
         icon: "success",
         title: "Berhasil!",
@@ -120,7 +119,6 @@ export const SafetyReportList: React.FC<SafetyReportListProps> = ({
 
       setItems(items.filter((item) => item.id !== reportToDelete.id));
 
-      // Success Alert
       await Swal.fire({
         icon: "success",
         title: "Berhasil!",
@@ -204,13 +202,11 @@ export const SafetyReportList: React.FC<SafetyReportListProps> = ({
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-      {/* Card Title */}
       <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
         <AlertTriangle className="h-5 w-5 mr-2 text-red-600" />
         Laporan K3
       </h3>
 
-      {/* List of Reports */}
       <div className="space-y-4">
         {currentReports.map((r: any) => (
           <div
@@ -314,7 +310,6 @@ export const SafetyReportList: React.FC<SafetyReportListProps> = ({
         ))}
       </div>
 
-      {/* Pagination */}
       {totalPages > 1 && (
         <div className="flex justify-center mt-6 space-x-2">
           {Array.from({ length: totalPages }, (_, i) => i + 1).map(
@@ -335,7 +330,6 @@ export const SafetyReportList: React.FC<SafetyReportListProps> = ({
         </div>
       )}
 
-      {/* Modal Ubah Status */}
       {selectedReport && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
           <div className="bg-white rounded-xl shadow-lg w-96 p-6 relative">

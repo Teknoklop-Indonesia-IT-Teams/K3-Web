@@ -7,14 +7,11 @@ const TrainingList: React.FC<TrainingListProps> = ({ refreshTrigger }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // pagination
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 2;
 
-  // search
   const [searchTerm, setSearchTerm] = useState("");
 
-  // state modal upload
   const [selectedTraining, setSelectedTraining] = useState<Training | null>(
     null,
   );
@@ -27,7 +24,6 @@ const TrainingList: React.FC<TrainingListProps> = ({ refreshTrigger }) => {
       const res = await fetch(`${import.meta.env.VITE_API_BASE}/api/trainings`);
       if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
       const data: Training[] = await res.json();
-      // urutkan terbaru berdasarkan start_time
       const sorted = data.sort(
         (a, b) =>
           new Date(b.start_time).getTime() - new Date(a.start_time).getTime(),
@@ -62,8 +58,8 @@ const TrainingList: React.FC<TrainingListProps> = ({ refreshTrigger }) => {
         },
       );
 
-      setSelectedTraining(null); // tutup modal
-      loadTrainings(); // refresh list
+      setSelectedTraining(null);
+      loadTrainings();
     } catch (err) {
       alert("❌ Gagal upload dokumentasi");
       console.error(err);
@@ -72,14 +68,12 @@ const TrainingList: React.FC<TrainingListProps> = ({ refreshTrigger }) => {
     }
   };
 
-  // filter data berdasarkan search
   const filteredItems = items.filter(
     (t) =>
       t.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       t.trainer?.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
-  // pagination slice
   const indexOfLast = currentPage * itemsPerPage;
   const indexOfFirst = indexOfLast - itemsPerPage;
   const currentItems = filteredItems.slice(indexOfFirst, indexOfLast);
@@ -96,7 +90,6 @@ const TrainingList: React.FC<TrainingListProps> = ({ refreshTrigger }) => {
         Jadwal Pelatihan
       </h3>
 
-      {/* Search box */}
       <div className="flex items-center mb-4 border rounded-lg px-2 py-1">
         <Search className="h-4 w-4 text-gray-500 mr-2" />
         <input
@@ -105,7 +98,7 @@ const TrainingList: React.FC<TrainingListProps> = ({ refreshTrigger }) => {
           value={searchTerm}
           onChange={(e) => {
             setSearchTerm(e.target.value);
-            setCurrentPage(1); // reset ke page pertama
+            setCurrentPage(1);
           }}
           className="flex-1 outline-none text-sm"
         />
@@ -140,7 +133,6 @@ const TrainingList: React.FC<TrainingListProps> = ({ refreshTrigger }) => {
                 <span>{t.duration_hours} jam</span>
               </div>
 
-              {/* Dokumentasi */}
               <div className="mt-3">
                 {t.documentation_url ? (
                   <img
@@ -158,7 +150,6 @@ const TrainingList: React.FC<TrainingListProps> = ({ refreshTrigger }) => {
                 )}
               </div>
 
-              {/* Tombol edit dokumentasi */}
               <div className="mt-2">
                 <button
                   onClick={() => setSelectedTraining(t)}
@@ -175,7 +166,6 @@ const TrainingList: React.FC<TrainingListProps> = ({ refreshTrigger }) => {
         </div>
       )}
 
-      {/* Pagination Controls */}
       {totalPages > 1 && (
         <div className="flex justify-center mt-6 space-x-2">
           {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
@@ -194,7 +184,6 @@ const TrainingList: React.FC<TrainingListProps> = ({ refreshTrigger }) => {
         </div>
       )}
 
-      {/* Modal Upload */}
       {selectedTraining && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-xl shadow-lg w-96 relative">

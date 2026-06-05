@@ -44,7 +44,6 @@ export const HealthHistory: React.FC<HealthHistoryProps> = ({
     fetchChecks();
   }, [refreshTrigger]);
 
-  // Generate pilihan tanggal, bulan, tahun
   const dateOptions = useMemo(() => {
     const dates = new Set<string>();
     checks.forEach((check) => {
@@ -53,7 +52,7 @@ export const HealthHistory: React.FC<HealthHistoryProps> = ({
       dates.add(dateStr);
     });
 
-    return Array.from(dates).sort().reverse(); // Urutkan dari terbaru
+    return Array.from(dates).sort().reverse();
   }, [checks]);
 
   const filteredChecks = useMemo(() => {
@@ -105,7 +104,6 @@ export const HealthHistory: React.FC<HealthHistoryProps> = ({
       year: "numeric",
     });
 
-    // Filter data berdasarkan tanggal yang dipilih
     const selectedDateData = checks.filter((row) =>
       row.measured_at.startsWith(selectedDate),
     );
@@ -176,7 +174,7 @@ export const HealthHistory: React.FC<HealthHistoryProps> = ({
               row.heart_rate ?? "—",
               row.blood_sugar ?? "—",
               row.cholesterol ?? "—",
-              "", // Kolom TTD tetap kosong, akan diisi di didDrawCell
+              "",
             ];
           }),
           theme: "grid",

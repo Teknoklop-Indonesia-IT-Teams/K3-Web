@@ -74,7 +74,6 @@ const AttendanceList: React.FC<AttendanceListProps> = ({
       );
       let data: Participant[] = await res.json();
 
-      // Remove duplicates based on participant_name
       const uniqueMap: Record<string, Participant> = {};
       data.forEach((p) => {
         if (!uniqueMap[p.participant_name]) uniqueMap[p.participant_name] = p;
@@ -90,12 +89,10 @@ const AttendanceList: React.FC<AttendanceListProps> = ({
     }
   };
 
-  // Filter trainings based on search term
   const filteredTrainings = trainings.filter((t) =>
     t.title.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
-  // Get employees who attended a specific training
   const getAttendingEmployees = (trainingId: string): Employee[] => {
     const participants = participantsMap[trainingId] || [];
     const participantNames = participants.map((p) => p.participant_name);
@@ -105,7 +102,6 @@ const AttendanceList: React.FC<AttendanceListProps> = ({
     );
   };
 
-  // Get participant details for a specific employee in a training
   const getParticipantDetails = (
     trainingId: string,
     employeeName: string,
@@ -115,7 +111,6 @@ const AttendanceList: React.FC<AttendanceListProps> = ({
     );
   };
 
-  // Toggle employee expansion
   const toggleEmployeeExpansion = (employeeId: string) => {
     setExpandedEmployeeIds((prev) => {
       const newSet = new Set(prev);
@@ -128,7 +123,6 @@ const AttendanceList: React.FC<AttendanceListProps> = ({
     });
   };
 
-  // Format date
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("id-ID", {
@@ -139,7 +133,6 @@ const AttendanceList: React.FC<AttendanceListProps> = ({
     });
   };
 
-  // Format time
   const formatTime = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleTimeString("id-ID", {
@@ -182,7 +175,6 @@ const AttendanceList: React.FC<AttendanceListProps> = ({
         </div>
       </div>
 
-      {/* Search Box for Trainings */}
       <div className="flex items-center mb-6 border border-gray-300 rounded-lg px-3 py-3 bg-white focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-transparent">
         <Search className="h-4 w-4 text-gray-500 mr-2" />
         <input
@@ -197,7 +189,6 @@ const AttendanceList: React.FC<AttendanceListProps> = ({
         />
       </div>
 
-      {/* List Pelatihan dengan Karyawan yang Hadir */}
       <div className="space-y-4">
         {currentTrainings.length === 0 ? (
           <div className="text-center py-8 text-gray-500">
@@ -223,7 +214,6 @@ const AttendanceList: React.FC<AttendanceListProps> = ({
                 key={training.id}
                 className="bg-gray-50 rounded-xl border border-gray-200 overflow-hidden"
               >
-                {/* Training Header */}
                 <div
                   className="flex justify-between items-center p-6 cursor-pointer hover:bg-white transition-colors duration-200"
                   onClick={() => {
@@ -269,7 +259,6 @@ const AttendanceList: React.FC<AttendanceListProps> = ({
                   </div>
                 </div>
 
-                {/* Employee List */}
                 {expandedTrainingId === training.id && (
                   <div className="border-t border-gray-200 bg-white p-6">
                     <div className="flex items-center justify-between mb-4">
@@ -300,7 +289,6 @@ const AttendanceList: React.FC<AttendanceListProps> = ({
                                 key={employee.id}
                                 className="bg-white border border-gray-200 rounded-lg hover:shadow-md transition-shadow duration-200"
                               >
-                                {/* Employee Header */}
                                 <div
                                   className="flex items-center justify-between p-4 cursor-pointer"
                                   onClick={() =>
@@ -334,7 +322,6 @@ const AttendanceList: React.FC<AttendanceListProps> = ({
                                   </div>
                                 </div>
 
-                                {/* Employee Details */}
                                 {isExpanded && participantDetails && (
                                   <div className="border-t border-gray-100 p-4 bg-gray-50">
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
@@ -378,7 +365,6 @@ const AttendanceList: React.FC<AttendanceListProps> = ({
                           })}
                         </div>
 
-                        {/* Employee Pagination */}
                         {totalEmployeePages > 1 && (
                           <div className="flex justify-center items-center space-x-2 mt-4">
                             <button
@@ -463,7 +449,6 @@ const AttendanceList: React.FC<AttendanceListProps> = ({
           })
         )}
 
-        {/* Training Pagination */}
         {totalTrainingPages > 1 && (
           <div className="flex justify-center items-center space-x-2 mt-6">
             <button

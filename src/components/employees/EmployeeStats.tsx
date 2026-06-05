@@ -11,7 +11,6 @@ import {
 } from "lucide-react";
 import { EmployeeStatsProps, StatsResponse } from "../../types";
 
-// 🔥 PERBAIKAN: Gunakan value yang sama dengan form
 const deptConfig: Record<
   string,
   {
@@ -23,7 +22,6 @@ const deptConfig: Record<
     name: string;
   }
 > = {
-  // 🔥 GUNAKAN VALUE YANG SAMA DENGAN FORM (case-sensitive)
   Direktur: {
     id: 1,
     icon: PersonStanding,
@@ -62,7 +60,7 @@ const deptConfig: Record<
     bg: "bg-yellow-50",
     text: "text-yellow-700",
     border: "border-yellow-200",
-    name: "Finance", // 🔥 SESUAIKAN DENGAN LABEL DI FORM
+    name: "Finance",
   },
   RND: {
     id: 6,
@@ -109,7 +107,7 @@ export const EmployeeStats: React.FC<EmployeeStatsProps> = ({
         }
 
         const json = await res.json();
-        console.log("📊 Employee stats data:", json); // 🔥 DEBUG: Lihat data dari backend
+        console.log("📊 Employee stats data:", json);
         setData(json);
       } catch (err) {
         console.error("Error fetching employee stats:", err);
@@ -124,7 +122,6 @@ export const EmployeeStats: React.FC<EmployeeStatsProps> = ({
     fetchStats();
   }, [refreshTrigger]);
 
-  // Loading state
   if (loading) {
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-6">
@@ -149,7 +146,6 @@ export const EmployeeStats: React.FC<EmployeeStatsProps> = ({
     );
   }
 
-  // Error state
   if (error) {
     return (
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 text-center">
@@ -170,7 +166,6 @@ export const EmployeeStats: React.FC<EmployeeStatsProps> = ({
     );
   }
 
-  // Empty state
   if (!data?.stats || data.stats.length === 0) {
     return (
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center">
@@ -190,7 +185,6 @@ export const EmployeeStats: React.FC<EmployeeStatsProps> = ({
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-6">
       {data.stats.map((stat) => {
-        // 🔥 PERBAIKAN: Gunakan langsung department dari data, jangan di lowercase
         const departmentKey = stat.department;
         const config = deptConfig[departmentKey] || {
           id: 0,
@@ -198,13 +192,12 @@ export const EmployeeStats: React.FC<EmployeeStatsProps> = ({
           bg: "bg-gray-50",
           text: "text-gray-700",
           border: "border-gray-200",
-          name: stat.department, // 🔥 Tampilkan department asli dari data
+          name: stat.department,
         };
 
         const Icon = config.icon;
         const percentage = data.total > 0 ? (stat.count / data.total) * 100 : 0;
 
-        // 🔥 DEBUG: Log untuk memastikan mapping benar
         console.log(`Department: ${stat.department}, Config:`, config);
 
         return (
@@ -247,7 +240,6 @@ export const EmployeeStats: React.FC<EmployeeStatsProps> = ({
         );
       })}
 
-      {/* Total Employees Card */}
       {data.total > 0 && (
         <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-sm border border-blue-400 p-4 lg:p-6 text-white">
           <div className="flex items-center justify-between">

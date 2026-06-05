@@ -49,7 +49,6 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
   const selectedParticipant = watch("participant_name");
   const selectedTrainingId = watch("training_id");
 
-  // Filter employees berdasarkan search term
   const filteredEmployees = useMemo(() => {
     if (!searchTerm) return employees;
     return employees.filter(
@@ -69,7 +68,6 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
     );
   }, [trainings, searchTrain]);
 
-  // Update selected training ketika training_id berubah
   useEffect(() => {
     if (selectedTrainingId) {
       const training = trainings.find((t) => t.id === selectedTrainingId);
@@ -222,7 +220,6 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
     }
   };
 
-  // Format date and time
   const formatDateTime = (dateString?: string) => {
     if (!dateString) {
       return { date: "-", time: "-" };
@@ -253,7 +250,6 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
         Form Absensi Pelatihan
       </h3>
       <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-6">
-        {/* Dropdown Pelatihan dengan Search */}
         <div className="relative">
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Pilih Pelatihan
@@ -267,7 +263,6 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
             </p>
           ) : (
             <div className="space-y-2">
-              {/* Custom Dropdown Trigger untuk Training */}
               <div className="relative">
                 <button
                   type="button"
@@ -292,7 +287,6 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
                   )}
                 </button>
 
-                {/* Hidden input untuk react-hook-form */}
                 <input
                   type="hidden"
                   {...register("training_id", {
@@ -301,10 +295,8 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
                 />
               </div>
 
-              {/* Dropdown Content untuk Training */}
               {isTrainingDropdownOpen && (
                 <div className="absolute top-full left-0 right-0 z-20 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-80 overflow-hidden">
-                  {/* Search Input untuk Training */}
                   <div className="p-2 border-b border-gray-200">
                     <div className="relative">
                       <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -319,7 +311,6 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
                     </div>
                   </div>
 
-                  {/* Training List */}
                   <div className="overflow-y-auto max-h-64">
                     {filteredTrainings.length === 0 ? (
                       <div className="p-4 text-center text-gray-500 text-sm">
@@ -349,14 +340,12 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
                               {training.title}
                             </p>
                             <div className="space-y-1 text-xs text-gray-600">
-                              {/* Trainer */}
                               {training.trainer && (
                                 <div className="flex items-center space-x-1">
                                   <User className="h-3 w-3" />
                                   <span>Trainer: {training.trainer}</span>
                                 </div>
                               )}
-                              {/* Tanggal & Waktu */}
                               <div className="flex items-center space-x-1">
                                 <Calendar className="h-3 w-3" />
                                 <span>
@@ -364,7 +353,6 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
                                   {formatDateTime(training.start_time).time}
                                 </span>
                               </div>
-                              {/* Lokasi */}
                               {training.location && (
                                 <div className="flex items-center space-x-1">
                                   <MapPin className="h-3 w-3" />
@@ -373,7 +361,6 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
                                   </span>
                                 </div>
                               )}
-                              {/* Kuota Peserta */}
                               {(training.max_participants ||
                                 training.current_participants) && (
                                 <div className="flex items-center space-x-1">
@@ -407,7 +394,6 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
           )}
         </div>
 
-        {/* Informasi Detail Pelatihan yang Dipilih */}
         {selectedTraining && (
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 space-y-3">
             <h4 className="font-semibold text-blue-900 text-sm">
@@ -415,7 +401,6 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
             </h4>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-              {/* Judul Pelatihan */}
               <div className="col-span-2">
                 <p className="font-medium text-gray-900">
                   {selectedTraining.title}
@@ -427,7 +412,6 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
                 )}
               </div>
 
-              {/* Waktu Pelatihan */}
               <div className="flex items-center space-x-2">
                 <Calendar className="h-4 w-4 text-blue-600 flex-shrink-0" />
                 <div>
@@ -441,7 +425,6 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
                 </div>
               </div>
 
-              {/* Lokasi */}
               {selectedTraining.location && (
                 <div className="flex items-center space-x-2">
                   <MapPin className="h-4 w-4 text-blue-600 flex-shrink-0" />
@@ -451,7 +434,6 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
                 </div>
               )}
 
-              {/* Trainer */}
               {selectedTraining.trainer && (
                 <div className="flex items-center space-x-2">
                   <User className="h-4 w-4 text-blue-600 flex-shrink-0" />
@@ -461,7 +443,6 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
                 </div>
               )}
 
-              {/* Kuota Peserta */}
               {(selectedTraining.max_participants ||
                 selectedTraining.current_participants) && (
                 <div className="flex items-center space-x-2">
@@ -477,7 +458,6 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
           </div>
         )}
 
-        {/* Dropdown Nama Karyawan dengan Search */}
         <div className="relative">
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Nama Karyawan
@@ -487,7 +467,6 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
             <p className="text-gray-500 text-sm">Memuat daftar karyawan...</p>
           ) : (
             <div className="space-y-2">
-              {/* Custom Dropdown Trigger */}
               <div className="relative">
                 <button
                   type="button"
@@ -512,7 +491,6 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
                   )}
                 </button>
 
-                {/* Hidden input untuk react-hook-form */}
                 <input
                   type="hidden"
                   {...register("participant_name", {
@@ -521,10 +499,8 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
                 />
               </div>
 
-              {/* Dropdown Content */}
               {isEmployeeDropdownOpen && (
                 <div className="absolute top-full left-0 right-0 z-10 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-hidden">
-                  {/* Search Input */}
                   <div className="p-2 border-b border-gray-200">
                     <div className="relative">
                       <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -539,7 +515,6 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
                     </div>
                   </div>
 
-                  {/* Employee List */}
                   <div className="overflow-y-auto max-h-48">
                     {filteredEmployees.length === 0 ? (
                       <div className="p-4 text-center text-gray-500 text-sm">
@@ -589,7 +564,6 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
           )}
         </div>
 
-        {/* Catatan */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Catatan (Opsional)
@@ -602,7 +576,6 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
           />
         </div>
 
-        {/* Signature */}
         <div>
           <SignatureCapture
             onSignatureChange={setSignatureData}
@@ -611,7 +584,6 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
           />
         </div>
 
-        {/* Submit */}
         <button
           type="submit"
           className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors font-medium disabled:bg-gray-400 disabled:cursor-not-allowed"
@@ -623,7 +595,6 @@ export const AttendanceForm: React.FC<AttendanceFormProps> = ({
         </button>
       </form>
 
-      {/* Overlay untuk menutup dropdown ketika klik di luar */}
       {(isEmployeeDropdownOpen || isTrainingDropdownOpen) && (
         <div
           className="fixed inset-0 z-0"

@@ -14,7 +14,6 @@ import { EmployeeManagement } from "./pages/EmployeeManagement";
 import { Training } from "./pages/Training";
 import { Login } from "./components/layout/Login";
 
-// Simple auth check function
 const isAuthenticated = () => {
   try {
     return localStorage.getItem("isLoggedIn") === "true";
@@ -23,7 +22,6 @@ const isAuthenticated = () => {
   }
 };
 
-// 🔥 PERBAIKAN: Main Layout Component
 const MainLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <div className="flex">
@@ -40,7 +38,6 @@ function App() {
     <Router>
       <div className="min-h-screen bg-gray-50">
         <Routes>
-          {/* Login Route - No Navbar */}
           <Route
             path="/login"
             element={
@@ -48,7 +45,6 @@ function App() {
             }
           />
 
-          {/* 🔥 PERBAIKAN: Protected Routes dengan layout yang benar */}
           <Route
             path="/"
             element={
@@ -123,7 +119,6 @@ function App() {
             }
           />
 
-          {/* 🔥 PERBAIKAN: Fallback Route */}
           <Route path="*" element={<Navigate to="/attendance" replace />} />
         </Routes>
       </div>

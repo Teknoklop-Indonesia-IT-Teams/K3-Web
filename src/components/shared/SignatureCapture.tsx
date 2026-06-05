@@ -1,28 +1,27 @@
-import React, { useRef, useState, useEffect, useCallback } from 'react';
-import { Upload, Pen, Trash2 } from 'lucide-react';
+import React, { useRef, useState, useEffect, useCallback } from "react";
+import { Upload, Pen, Trash2 } from "lucide-react";
 
 interface SignatureCaptureProps {
   onSignatureChange: (signature: string) => void;
   label?: string;
-  clearTrigger?: number; // 🔥 trigger dari parent untuk auto-clear
+  clearTrigger?: number;
 }
 
 export const SignatureCapture: React.FC<SignatureCaptureProps> = ({
   onSignatureChange,
-  label = 'Tanda Tangan',
+  label = "Tanda Tangan",
   clearTrigger = 0,
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDrawing, setIsDrawing] = useState(false);
-  const [preview, setPreview] = useState<string>('');
+  const [preview, setPreview] = useState<string>("");
 
-  // Setup canvas scale untuk presisi
   const resizeCanvas = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
     const ratio = window.devicePixelRatio || 1;
@@ -34,17 +33,16 @@ export const SignatureCapture: React.FC<SignatureCaptureProps> = ({
     ctx.scale(ratio, ratio);
 
     ctx.lineWidth = 2;
-    ctx.lineCap = 'round';
-    ctx.strokeStyle = '#1f2937';
+    ctx.lineCap = "round";
+    ctx.strokeStyle = "#1f2937";
 
-    // 🔥 clear setiap resize supaya gambar lama nggak nyangkut
     ctx.clearRect(0, 0, canvas.width, canvas.height);
   }, []);
 
   useEffect(() => {
     resizeCanvas();
-    window.addEventListener('resize', resizeCanvas);
-    return () => window.removeEventListener('resize', resizeCanvas);
+    window.addEventListener("resize", resizeCanvas);
+    return () => window.removeEventListener("resize", resizeCanvas);
   }, [resizeCanvas]);
 
   const getPos = (e: React.MouseEvent | React.TouchEvent) => {
@@ -54,10 +52,10 @@ export const SignatureCapture: React.FC<SignatureCaptureProps> = ({
     let x = 0;
     let y = 0;
 
-    if ('touches' in e && e.touches.length > 0) {
+    if ("touches" in e && e.touches.length > 0) {
       x = e.touches[0].clientX - rect.left;
       y = e.touches[0].clientY - rect.top;
-    } else if ('clientX' in e) {
+    } else if ("clientX" in e) {
       x = e.clientX - rect.left;
       y = e.clientY - rect.top;
     }
@@ -68,7 +66,7 @@ export const SignatureCapture: React.FC<SignatureCaptureProps> = ({
   const startDrawing = useCallback((e: React.MouseEvent | React.TouchEvent) => {
     e.preventDefault();
     const { x, y } = getPos(e);
-    const ctx = canvasRef.current?.getContext('2d');
+    const ctx = canvasRef.current?.getContext("2d");
     if (!ctx) return;
 
     ctx.beginPath();
@@ -81,13 +79,13 @@ export const SignatureCapture: React.FC<SignatureCaptureProps> = ({
       if (!isDrawing) return;
       e.preventDefault();
       const { x, y } = getPos(e);
-      const ctx = canvasRef.current?.getContext('2d');
+      const ctx = canvasRef.current?.getContext("2d");
       if (!ctx) return;
 
       ctx.lineTo(x, y);
       ctx.stroke();
     },
-    [isDrawing]
+    [isDrawing],
   );
 
   const stopDrawing = useCallback(() => {
@@ -103,15 +101,14 @@ export const SignatureCapture: React.FC<SignatureCaptureProps> = ({
   const clearSignature = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    setPreview('');
-    onSignatureChange('');
+    setPreview("");
+    onSignatureChange("");
   }, [onSignatureChange]);
 
-  // 🔥 auto clear jika parent trigger berubah
   useEffect(() => {
     if (clearTrigger > 0) {
       clearSignature();
@@ -127,7 +124,7 @@ export const SignatureCapture: React.FC<SignatureCaptureProps> = ({
       const img = new Image();
       img.onload = () => {
         const canvas = canvasRef.current;
-        const ctx = canvas?.getContext('2d');
+        const ctx = canvas?.getContext("2d");
         if (!canvas || !ctx) return;
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -193,7 +190,11 @@ export const SignatureCapture: React.FC<SignatureCaptureProps> = ({
       {preview && (
         <div className="mt-2">
           <p className="text-xs text-gray-500 mb-1">Preview:</p>
-          <img src={preview} alt="Signature Preview" className="border rounded-lg max-h-24" />
+          <img
+            src={preview}
+            alt="Signature Preview"
+            className="border rounded-lg max-h-24"
+          />
         </div>
       )}
 

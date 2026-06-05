@@ -35,7 +35,6 @@ export const AttendanceChart: React.FC<AttendanceChartProps> = ({
 
       setTotalEmployees(employees.length);
 
-      // Generate 12 bulan terakhir
       const last12Months = Array.from({ length: 12 }, (_, i) => {
         const date = new Date();
         date.setMonth(date.getMonth() - (11 - i));
@@ -48,12 +47,10 @@ export const AttendanceChart: React.FC<AttendanceChartProps> = ({
 
       const grouped: { [month: string]: Set<string> } = {};
 
-      // Initialize semua bulan
       last12Months.forEach((month) => {
         grouped[month] = new Set();
       });
 
-      // Group data berdasarkan bulan
       data.forEach((record) => {
         const month = new Date(record.timestamp).toLocaleDateString("id-ID", {
           month: "short",
@@ -65,7 +62,6 @@ export const AttendanceChart: React.FC<AttendanceChartProps> = ({
         }
       });
 
-      // Format chart
       const formatted: ChartData[] = last12Months.map((month) => ({
         date: month,
         hadir: grouped[month]?.size || 0,
@@ -75,7 +71,7 @@ export const AttendanceChart: React.FC<AttendanceChartProps> = ({
       setChartData(formatted);
     } catch (err) {
       console.error("❌ Gagal ambil data chart:", err);
-      // Fallback data
+
       const fallbackData = Array.from({ length: 12 }, (_, i) => {
         const date = new Date();
         date.setMonth(date.getMonth() - (11 - i));

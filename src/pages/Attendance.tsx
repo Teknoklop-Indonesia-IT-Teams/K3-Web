@@ -11,10 +11,7 @@ export const Attendance: React.FC = () => {
   };
 
   return (
-    // 🔥 HAPUS: min-h-screen bg-gray-50 pt-16 lg:pt-0 dan container padding
-    // Karena sudah dihandle oleh MainLayout
     <div>
-      {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
           Sistem Absensi Pelatihan
@@ -24,14 +21,11 @@ export const Attendance: React.FC = () => {
         </p>
       </div>
 
-      {/* Stats */}
       <div className="mb-8">
         <AttendanceStats refreshTrigger={refreshTrigger} />
       </div>
 
-      {/* Main Content */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Attendance Form */}
         <div>
           <AttendanceForm
             onSubmitSuccess={handleAttendanceSubmit}
@@ -39,7 +33,6 @@ export const Attendance: React.FC = () => {
           />
         </div>
 
-        {/* Attendance List */}
         <div>
           <AttendanceList refreshTrigger={refreshTrigger} />
         </div>

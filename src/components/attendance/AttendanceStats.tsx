@@ -33,7 +33,6 @@ export const AttendanceStats: React.FC<AttendanceStatsProps> = ({
     return <div className="text-red-500">Gagal memuat statistik</div>;
   }
 
-  // Convert rata jam masuk decimal (contoh 8.20) jadi HH:MM
   const formatJam = (decimalHour: number) => {
     if (!decimalHour) return "-";
     const jam = Math.floor(decimalHour);
