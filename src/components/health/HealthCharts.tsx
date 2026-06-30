@@ -67,8 +67,12 @@ export const HealthCharts: React.FC<HealthChartsProps> = ({
     }),
     systolic: row.blood_pressure_systolic ?? null,
     diastolic: row.blood_pressure_diastolic ?? null,
+    temperature: row.temperature ?? null,
+    heart_rate: row.heart_rate ?? null,
     sugar: row.blood_sugar ?? null,
     cholesterol: row.cholesterol ?? null,
+    urid_acid: row.urid_acid ?? null,
+    weight: row.weight ?? null,
     name: row.employee_name,
     raw: row,
   }));
@@ -97,6 +101,16 @@ export const HealthCharts: React.FC<HealthChartsProps> = ({
           allow: metric === "all" || metric === "bp",
         },
         {
+          key: "temperature",
+          label: "Suhu",
+          allow: metric === "all" || metric === "temperature",
+        },
+        {
+          key: "heart_rate",
+          label: "Detak Jantung",
+          allow: metric === "all" || metric === "heart_rate",
+        },
+        {
           key: "sugar",
           label: "Gula",
           allow: metric === "all" || metric === "sugar",
@@ -105,6 +119,16 @@ export const HealthCharts: React.FC<HealthChartsProps> = ({
           key: "cholesterol",
           label: "Kolesterol",
           allow: metric === "all" || metric === "cholesterol",
+        },
+        {
+          key: "urid_acid",
+          label: "Asam Urat",
+          allow: metric === "all" || metric === "urid_acid",
+        },
+        {
+          key: "weight",
+          label: "Berat Badan",
+          allow: metric === "all" || metric === "weight",
         },
       ];
 
@@ -222,8 +246,12 @@ export const HealthCharts: React.FC<HealthChartsProps> = ({
           >
             <option value="all">Semua</option>
             <option value="bp">Sistolik/Diastolik</option>
+            <option value="temperature">Suhu</option>
+            <option value="heart_rate">Detak Jantung</option>
             <option value="sugar">Gula</option>
             <option value="cholesterol">Kolesterol</option>
+            <option value="urid_acid">Asam Urat</option>
+            <option value="weight">Berat Badan</option>
           </select>
 
           <select
@@ -303,6 +331,47 @@ export const HealthCharts: React.FC<HealthChartsProps> = ({
                 strokeWidth={3}
                 dot={{ fill: "#9333ea", r: 5 }}
                 name="Kolesterol"
+              ></Line>
+            )}
+
+            {(metric === "all" || metric === "urid_acid") && (
+              <Line
+                type="monotone"
+                dataKey="urid_acid"
+                stroke="#f97316"
+                strokeWidth={3}
+                dot={{ fill: "#f97316", r: 5 }}
+                name="Asam Urat"
+              ></Line>
+            )}
+            {(metric === "all" || metric === "temperature") && (
+              <Line
+                type="monotone"
+                dataKey="temperature"
+                stroke="#facc15"
+                strokeWidth={3}
+                dot={{ fill: "#facc15", r: 5 }}
+                name="Suhu"
+              ></Line>
+            )}
+            {(metric === "all" || metric === "heart_rate") && (
+              <Line
+                type="monotone"
+                dataKey="heart_rate"
+                stroke="#f43f5e"
+                strokeWidth={3}
+                dot={{ fill: "#f43f5e", r: 5 }}
+                name="Detak Jantung"
+              ></Line>
+            )}
+            {(metric === "all" || metric === "weight") && (
+              <Line
+                type="monotone"
+                dataKey="weight"
+                stroke="#0ea5e9"
+                strokeWidth={3}
+                dot={{ fill: "#0ea5e9", r: 5 }}
+                name="Berat Badan"
               ></Line>
             )}
           </LineChart>

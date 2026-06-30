@@ -7,6 +7,9 @@ import {
   HeartPulse,
   Search,
   Calendar,
+  FlaskConical,
+  Thermometer,
+  Weight,
 } from "lucide-react";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
@@ -157,8 +160,11 @@ export const HealthHistory: React.FC<HealthHistoryProps> = ({
               "Nama",
               "Tensi",
               "Detak Jantung",
+              "Suhu",
+              "Berat Badan",
               "Gula Darah",
               "Kolesterol",
+              "Asam Urat",
               "TTD",
             ],
           ],
@@ -172,8 +178,11 @@ export const HealthHistory: React.FC<HealthHistoryProps> = ({
                 ? `${row.blood_pressure_systolic}/${row.blood_pressure_diastolic}`
                 : "—",
               row.heart_rate ?? "—",
+              row.temperature ?? "—",
+              row.weight ?? "—",
               row.blood_sugar ?? "—",
               row.cholesterol ?? "—",
+              row.urid_acid ?? "—",
               "",
             ];
           }),
@@ -189,23 +198,26 @@ export const HealthHistory: React.FC<HealthHistoryProps> = ({
           columnStyles: {
             0: { cellWidth: 10 },
             1: { cellWidth: 45 },
-            2: { cellWidth: 25 },
-            3: { cellWidth: 25 },
-            4: { cellWidth: 25 },
-            5: { cellWidth: 25 },
-            6: { cellWidth: 35 },
+            2: { cellWidth: 20 },
+            3: { cellWidth: 18 },
+            4: { cellWidth: 15 },
+            5: { cellWidth: 15 },
+            6: { cellWidth: 15 },
+            7: { cellWidth: 19 },
+            8: { cellWidth: 15 },
+            9: { cellWidth: 20 },
           },
           headStyles: { fillColor: [255, 255, 255], textColor: [0, 0, 0] },
           margin: { left: 10, right: 10 },
           didDrawCell: function (data) {
-            if (data.section === "body" && data.column.index === 6) {
+            if (data.section === "body" && data.column.index === 9) {
               const rowIndex = data.row.index;
               const rowData = chunk[rowIndex];
 
               if (rowData?.signature_data) {
                 try {
-                  const imgWidth = 25;
-                  const imgHeight = 10;
+                  const imgWidth = 22;
+                  const imgHeight = 9;
                   const x = data.cell.x + (data.cell.width - imgWidth) / 2;
                   const y = data.cell.y + (data.cell.height - imgHeight) / 2;
 
@@ -367,12 +379,24 @@ export const HealthHistory: React.FC<HealthHistoryProps> = ({
                 </span>
               </div>
               <div className="flex items-center text-gray-700">
+                <Thermometer className="h-4 w-4 mr-1 text-gray-400" />
+                <span>{h.temperature ? `${h.temperature} °C` : "—"}</span>
+              </div>
+              <div className="flex items-center text-gray-700">
+                <Weight className="h-4 w-4 mr-1 text-gray-400" />
+                <span>{h.weight ? `${h.weight} kg` : "—"}</span>
+              </div>
+              <div className="flex items-center text-gray-700">
                 <Droplet className="h-4 w-4 mr-1 text-gray-400" />
                 <span>{h.blood_sugar ? `${h.blood_sugar} mg/dL` : "—"}</span>
               </div>
               <div className="flex items-center text-gray-700">
                 <Beaker className="h-4 w-4 mr-1 text-gray-400" />
                 <span>{h.cholesterol ? `${h.cholesterol} mg/dL` : "—"}</span>
+              </div>
+              <div className="flex items-center text-gray-700">
+                <FlaskConical className="h-4 w-4 mr-1 text-gray-400" />
+                <span>{h.urid_acid ? `${h.urid_acid} mg/dL` : "—"}</span>
               </div>
             </div>
             {h.notes && (

@@ -16,6 +16,7 @@ export const HealthForm: React.FC<{ onSuccess?: () => void }> = ({
     weight: "",
     blood_sugar: "",
     cholesterol: "",
+    urid_acid: "",
     notes: "",
   });
 
@@ -106,6 +107,7 @@ export const HealthForm: React.FC<{ onSuccess?: () => void }> = ({
             weight: form.weight ? Number(form.weight) : null,
             blood_sugar: form.blood_sugar ? Number(form.blood_sugar) : null,
             cholesterol: form.cholesterol ? Number(form.cholesterol) : null,
+            urid_acid: form.urid_acid ? Number(form.urid_acid) : null,
             signature: signatureData,
           }),
         },
@@ -128,6 +130,7 @@ export const HealthForm: React.FC<{ onSuccess?: () => void }> = ({
         weight: "",
         blood_sugar: "",
         cholesterol: "",
+        urid_acid: "",
         notes: "",
       });
       setSignatureData("");
@@ -323,24 +326,23 @@ export const HealthForm: React.FC<{ onSuccess?: () => void }> = ({
           </div>
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Berat Badan (kg)
-          </label>
-          <input
-            type="number"
-            step="0.1"
-            name="weight"
-            value={form.weight}
-            onChange={handleChange}
-            placeholder="65.5"
-            min={20}
-            max={300}
-            className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-          />
-        </div>
-
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Berat Badan (kg)
+            </label>
+            <input
+              type="number"
+              step="0.1"
+              name="weight"
+              value={form.weight}
+              onChange={handleChange}
+              placeholder="65.5"
+              min={20}
+              max={300}
+              className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+            />
+          </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Gula Darah (mg/dL)
@@ -357,7 +359,9 @@ export const HealthForm: React.FC<{ onSuccess?: () => void }> = ({
               className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
             />
           </div>
+        </div>
 
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Kolesterol (mg/dL)
@@ -371,6 +375,22 @@ export const HealthForm: React.FC<{ onSuccess?: () => void }> = ({
               placeholder="180"
               min={100}
               max={400}
+              className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Asam Urat (mg/dL)
+            </label>
+            <input
+              type="number"
+              step="0.1"
+              name="urid_acid"
+              value={form.urid_acid}
+              onChange={handleChange}
+              placeholder="5.8"
+              min={0}
+              max={20}
               className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
             />
           </div>

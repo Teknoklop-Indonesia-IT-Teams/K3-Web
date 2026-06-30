@@ -85,6 +85,9 @@ export interface HealthCheck {
   spo2?: number;
   blood_sugar?: number;
   cholesterol?: number;
+  urid_acid?: number;
+  temperature?: number;
+  weight?: number;
   measured_at: string;
   notes?: string;
   signature_data?: string;

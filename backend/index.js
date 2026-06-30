@@ -356,7 +356,8 @@ app.get("/api/health/checks", async (req, res) => {
         cholesterol, 
         measured_at, 
         notes, 
-        signature_data
+        signature_data,
+        urid_acid
       FROM health_checks
       ORDER BY measured_at DESC
       LIMIT 100
@@ -381,6 +382,7 @@ app.post("/api/health/checks", async (req, res) => {
       cholesterol,
       notes,
       signature,
+      urid_acid,
     } = req.body;
 
     if (!employee_name) {
@@ -389,8 +391,8 @@ app.post("/api/health/checks", async (req, res) => {
 
     const q = `
       INSERT INTO health_checks 
-        (employee_name, blood_pressure_systolic, blood_pressure_diastolic, heart_rate, temperature, weight, blood_sugar, cholesterol, notes, signature_data)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+        (employee_name, blood_pressure_systolic, blood_pressure_diastolic, heart_rate, temperature, weight, blood_sugar, cholesterol, notes, signature_data, urid_acid)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
       RETURNING *
     `;
     const values = [
@@ -404,7 +406,10 @@ app.post("/api/health/checks", async (req, res) => {
       cholesterol || null,
       notes || null,
       signature || null,
+      urid_acid || null,
     ];
+
+    console.log("Inserting health check with values:", values);
 
     const { rows } = await pools.health.query(q, values);
 
