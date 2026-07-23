@@ -2,6 +2,7 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import { User } from "lucide-react";
 import Swal from "sweetalert2";
+import { authHeaders } from "../../lib/auth";
 
 interface EmployeeFormData {
   name: string;
@@ -12,7 +13,7 @@ interface EmployeeFormData {
 }
 
 interface EmployeeFormProps {
-  onSubmit: (newEmployeeId: number) => void;
+  onSubmit: (newEmployeeId: string) => void;
 }
 
 export const EmployeeForm: React.FC<EmployeeFormProps> = ({ onSubmit }) => {
@@ -36,7 +37,7 @@ export const EmployeeForm: React.FC<EmployeeFormProps> = ({ onSubmit }) => {
         `${import.meta.env.VITE_API_BASE}/api/employees`,
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json", ...authHeaders() },
           body: JSON.stringify(payload),
         },
       );

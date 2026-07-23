@@ -80,6 +80,41 @@ const upload = multer({ storage, fileFilter });
 
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
+function requireRole(...allowedRoles) {
+  return async (req, res, next) => {
+    const token = req.headers.authorization?.replace("Bearer ", "");
+    if (!token) {
+      return res.status(401).json({ error: "Tidak terautentikasi" });
+    }
+
+    try {
+      const decoded = Buffer.from(token, "base64").toString("ascii");
+      const [username] = decoded.split(":");
+
+      const { rows } = await pool.query(
+        "SELECT id, username, role FROM users WHERE username = $1",
+        [username],
+      );
+
+      if (!rows.length) {
+        return res.status(401).json({ error: "User tidak ditemukan" });
+      }
+
+      if (!allowedRoles.includes(rows[0].role)) {
+        return res.status(403).json({ error: "Tidak memiliki akses" });
+      }
+
+      req.userId = rows[0].id;
+      req.userRole = rows[0].role;
+      req.username = rows[0].username;
+      next();
+    } catch (err) {
+      console.error("requireRole error:", err);
+      return res.status(401).json({ error: "Token tidak valid" });
+    }
+  };
+}
+
 // ==========================================================
 // ======================== AUTH ============================
 // ==========================================================
@@ -151,24 +186,18 @@ app.get("/api/auth/check", async (req, res) => {
         return res.status(401).json({ authenticated: false });
       }
 
-      const validUsers = ["admin", "safety", "hrd"];
-      if (validUsers.includes(username)) {
+      const { rows } = await pool.query(
+        "SELECT username, role, name FROM users WHERE username = $1",
+        [username],
+      );
+
+      if (rows.length > 0) {
         return res.json({
           authenticated: true,
           user: {
-            username,
-            role:
-              username === "admin"
-                ? "admin"
-                : username === "safety"
-                  ? "safety_officer"
-                  : "hrd",
-            name:
-              username === "admin"
-                ? "Administrator"
-                : username === "safety"
-                  ? "Safety Officer"
-                  : "HRD Officer",
+            username: rows[0].username,
+            role: rows[0].role,
+            name: rows[0].name,
           },
         });
       }
@@ -369,7 +398,7 @@ app.get("/api/health/checks", async (req, res) => {
   }
 });
 
-app.post("/api/health/checks", async (req, res) => {
+app.post("/api/health/checks", requireRole("admin", "safety", "safety_officer", "hrd"), async (req, res) => {
   try {
     const {
       employee_name,
@@ -446,9 +475,14 @@ app.get("/api/health/stats", async (req, res) => {
 // ==========================================================
 app.get("/api/employees", async (req, res) => {
   try {
-    const { rows } = await pools.employees.query(
-      "SELECT * FROM employees WHERE status = 'active' ORDER BY created_at ASC LIMIT 500",
-    );
+    const { rows } = await pools.employees.query(`
+      SELECT e.*, u.username, u.role AS user_role
+      FROM employees e
+      LEFT JOIN users u ON u.id = e.user_id
+      WHERE e.status = 'active'
+      ORDER BY e.created_at ASC
+      LIMIT 500
+    `);
     res.json(rows);
   } catch (err) {
     console.error("GET /api/employees error:", err);
@@ -456,7 +490,7 @@ app.get("/api/employees", async (req, res) => {
   }
 });
 
-app.post("/api/employees", async (req, res) => {
+app.post("/api/employees", requireRole("admin", "safety", "safety_officer", "hrd"), async (req, res) => {
   try {
     const { name, department, blood_type, email, phone, status } = req.body;
     const q = `INSERT INTO employees (name, department, blood_type, email, phone, status) VALUES ($1,$2,$3,$4,$5,$6) RETURNING *`;
@@ -476,7 +510,7 @@ app.post("/api/employees", async (req, res) => {
   }
 });
 
-app.put("/api/employees/:id", async (req, res) => {
+app.put("/api/employees/:id", requireRole("admin", "safety", "safety_officer", "hrd"), async (req, res) => {
   try {
     const { id } = req.params;
     const { name, department, blood_type, email, phone, status } = req.body;
@@ -515,7 +549,7 @@ app.put("/api/employees/:id", async (req, res) => {
   }
 });
 
-app.delete("/api/employees/:id", async (req, res) => {
+app.delete("/api/employees/:id", requireRole("admin", "safety", "safety_officer", "hrd"), async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -614,6 +648,42 @@ app.get("/api/employees/stats", async (req, res) => {
   }
 });
 
+app.put("/api/employees/:id/assign-user", requireRole("admin", "safety", "safety_officer", "hrd"), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { user_id } = req.body;
+
+    const q = `
+      UPDATE employees
+      SET user_id = $1, updated_at = NOW()
+      WHERE id = $2
+      RETURNING *
+    `;
+    const { rows } = await pools.employees.query(q, [user_id || null, id]);
+
+    if (rows.length === 0) {
+      return res.status(404).json({ error: "Employee not found" });
+    }
+
+    res.json(rows[0]);
+  } catch (err) {
+    console.error("PUT /api/employees/:id/assign-user error:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.get("/api/users/available", requireRole("admin", "safety", "safety_officer", "hrd"), async (req, res) => {
+  try {
+    const { rows } = await pool.query(
+      "SELECT id, username, role, name FROM users ORDER BY role, username",
+    );
+    res.json(rows);
+  } catch (err) {
+    console.error("GET /api/users/available error:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ==========================================================
 // ======================== SAFETY ==========================
 // ==========================================================
@@ -632,7 +702,7 @@ app.get("/api/safety/reports", async (req, res) => {
   }
 });
 
-app.post("/api/safety/reports", async (req, res) => {
+app.post("/api/safety/reports", requireRole("admin", "safety", "safety_officer", "hrd"), async (req, res) => {
   try {
     const {
       title,
@@ -676,7 +746,7 @@ app.post("/api/safety/reports", async (req, res) => {
   }
 });
 
-app.put("/api/safety/reports/:id/status", async (req, res) => {
+app.put("/api/safety/reports/:id/status", requireRole("admin", "safety", "safety_officer", "hrd"), async (req, res) => {
   try {
     const { id } = req.params;
     const { status, completed_at } = req.body;
@@ -713,7 +783,7 @@ app.put("/api/safety/reports/:id/status", async (req, res) => {
   }
 });
 
-app.delete("/api/safety/reports/:id", async (req, res) => {
+app.delete("/api/safety/reports/:id", requireRole("admin", "safety", "safety_officer", "hrd"), async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -782,7 +852,7 @@ app.get("/api/trainings", async (req, res) => {
   }
 });
 
-app.post("/api/trainings", upload.single("documentation"), async (req, res) => {
+app.post("/api/trainings", requireRole("admin", "safety", "safety_officer", "hrd"), upload.single("documentation"), async (req, res) => {
   try {
     const { title, trainer, date, duration } = req.body;
     if (!title || !trainer || !date || !duration) {
@@ -817,6 +887,7 @@ app.post("/api/trainings", upload.single("documentation"), async (req, res) => {
 
 app.put(
   "/api/trainings/:id/documentation",
+  requireRole("admin", "safety", "safety_officer", "hrd"),
   upload.single("documentation"),
   async (req, res) => {
     try {

@@ -1,16 +1,27 @@
 export interface Employee {
-  id: number;
+  id: string;
   name: string;
   department: string;
   email: string;
   phone: string;
   blood_type: string;
   status: string;
+  user_id?: number | null;
+  username?: string | null;
+  user_role?: string | null;
+}
+
+export interface AvailableUser {
+  id: number;
+  username: string;
+  role: string;
+  name: string;
 }
 
 export interface EmployeeListProps {
   refreshTrigger: number;
-  highlightId: number | null;
+  highlightId: string | null;
+  showActions: boolean;
 }
 
 export interface EmployeeStatsProps {
@@ -63,6 +74,7 @@ export interface TrainingFormData {
 
 export interface TrainingListProps {
   refreshTrigger: number;
+  showActions: boolean;
 }
 
 export interface TrainingStatsProps {
@@ -95,6 +107,7 @@ export interface HealthCheck {
 
 export interface HealthHistoryProps {
   refreshTrigger: number;
+  showActions?: boolean;
 }
 
 export interface HealthStatsData {
@@ -187,4 +200,5 @@ export interface SafetyMetricsCardProps {
 export interface SafetyReportListProps {
   refreshTrigger: number;
   onUpdate?: () => void;
+  showActions: boolean;
 }

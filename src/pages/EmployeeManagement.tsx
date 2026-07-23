@@ -1,14 +1,17 @@
 import React, { useState, useRef } from "react";
-import { EmployeeForm } from "../components/employees/EmployeeForm"; // jika diganti named export
-import { EmployeeList } from "../components/employees/EmployeeList"; // jika diganti named export
+import { EmployeeForm } from "../components/employees/EmployeeForm";
+import { EmployeeList } from "../components/employees/EmployeeList";
 import { EmployeeStats } from "../components/employees/EmployeeStats";
+import { canManage } from "../lib/auth";
 
 export const EmployeeManagement: React.FC = () => {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
-  const [highlightId, setHighlightId] = useState<number | null>(null);
+  const [highlightId, setHighlightId] = useState<string | null>(null);
   const listRef = useRef<HTMLDivElement>(null);
 
-  const handleEmployeeSubmit = (newEmployeeId: number) => {
+  const showManagement = canManage();
+
+  const handleEmployeeSubmit = (newEmployeeId: string) => {
     setHighlightId(newEmployeeId);
     setRefreshTrigger((prev) => prev + 1);
 
@@ -33,14 +36,17 @@ export const EmployeeManagement: React.FC = () => {
           <EmployeeStats refreshTrigger={refreshTrigger} />
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div>
-            <EmployeeForm onSubmit={handleEmployeeSubmit} />
-          </div>
+        <div className={`grid grid-cols-1 ${showManagement ? "lg:grid-cols-2" : ""} gap-8`}>
+          {showManagement && (
+            <div>
+              <EmployeeForm onSubmit={handleEmployeeSubmit} />
+            </div>
+          )}
           <div ref={listRef}>
             <EmployeeList
               refreshTrigger={refreshTrigger}
               highlightId={highlightId}
+              showActions={showManagement}
             />
           </div>
         </div>
