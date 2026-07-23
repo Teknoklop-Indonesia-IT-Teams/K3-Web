@@ -53,7 +53,7 @@ function App() {
                   <Dashboard />
                 </MainLayout>
               ) : (
-                <Navigate to="/attendance" replace />
+                <Navigate to="/login" replace />
               )
             }
           />
@@ -75,7 +75,7 @@ function App() {
                   <HealthMonitoring />
                 </MainLayout>
               ) : (
-                <Navigate to="/attendance" replace />
+                <Navigate to="/login" replace />
               )
             }
           />
@@ -88,7 +88,7 @@ function App() {
                   <SafetyReports />
                 </MainLayout>
               ) : (
-                <Navigate to="/attendance" replace />
+                <Navigate to="/login" replace />
               )
             }
           />
@@ -101,7 +101,7 @@ function App() {
                   <EmployeeManagement />
                 </MainLayout>
               ) : (
-                <Navigate to="/attendance" replace />
+                <Navigate to="/login" replace />
               )
             }
           />
@@ -114,12 +114,12 @@ function App() {
                   <Training />
                 </MainLayout>
               ) : (
-                <Navigate to="/attendance" replace />
+                <Navigate to="/login" replace />
               )
             }
           />
 
-          <Route path="*" element={<Navigate to="/attendance" replace />} />
+          <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       </div>
     </Router>
